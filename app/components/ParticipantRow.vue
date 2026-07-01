@@ -34,18 +34,18 @@ const descriptor = computed(() => {
     :class="isYou ? 'bg-row-you' : ''"
     :aria-label="`${participant.name} (${descriptor})`"
   >
-    <div class="flex items-center gap-2">
+    <div class="flex min-w-0 items-center gap-2">
       <UserAvatar :name="participant.name" :tint="participant.avatar" />
-      <span class="text-body font-semibold text-ink">{{ participant.name }}</span>
+      <span class="min-w-0 truncate text-body font-semibold text-ink">{{ participant.name }}</span>
       <span
         v-if="isHost"
-        class="rounded-sm bg-accent-bg px-1.5 py-0.5 font-mono text-label-caps font-bold uppercase tracking-wider text-accent"
+        class="shrink-0 rounded-sm bg-accent-bg px-1.5 py-0.5 font-mono text-label-caps font-bold uppercase tracking-wider text-accent"
       >Host</span>
-      <span v-if="isYou" class="text-meta text-accent">· you</span>
-      <span v-if="participant.role === 'observer'" class="font-mono text-meta text-ink-muted">observer</span>
+      <span v-if="isYou" class="shrink-0 text-meta text-accent">· you</span>
+      <span v-if="participant.role === 'observer'" class="shrink-0 font-mono text-meta text-ink-muted">observer</span>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex shrink-0 items-center gap-3">
       <button
         v-if="canManage && !isHost"
         type="button"

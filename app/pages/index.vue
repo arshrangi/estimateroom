@@ -17,8 +17,30 @@ async function createRoom() {
 </script>
 
 <template>
-  <main>
-    <h1>Pointr</h1>
-    <button type="button" :disabled="creating" @click="createRoom">Create room</button>
+  <main class="mx-auto mt-16 max-w-lg text-center sm:mt-24">
+    <h1 class="text-heading font-bold text-ink">Planning poker that respects your meeting</h1>
+    <p class="mx-auto mt-3 max-w-md text-body text-ink-soft">
+      Ad-free, account-free estimation for agile teams. Open a room, paste the link, estimate.
+    </p>
+
+    <p class="mt-5 inline-flex items-center gap-2 rounded-sm border border-accent-border bg-accent-bg px-3 py-1.5 font-mono text-meta text-accent">
+      No ads, no signup, ever
+    </p>
+
+    <div class="mt-8">
+      <button
+        type="button"
+        :disabled="creating"
+        :aria-busy="creating"
+        class="h-11 rounded-sm bg-accent px-6 text-body font-semibold text-accent-fg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        @click="createRoom"
+      >
+        {{ creating ? 'Creating room…' : 'Create a room' }}
+      </button>
+    </div>
+
+    <p class="mt-10 font-mono text-meta text-ink-muted">
+      Free and open source. Self-hostable. Light and dark, built in.
+    </p>
   </main>
 </template>

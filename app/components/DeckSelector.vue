@@ -13,6 +13,11 @@ const custom = ref('')
 // When votes already exist, a chosen deck waits here for confirmation (changing clears votes).
 const pending = ref<string[] | null>(null)
 
+const rootEl = ref<HTMLElement | null>(null)
+const triggerEl = ref<HTMLButtonElement | null>(null)
+const firstPresetEl = ref<HTMLButtonElement | null>(null)
+const confirmEl = ref<HTMLButtonElement | null>(null)
+
 const currentLabel = computed(() => {
   const deck = store.deck
   if (!deck) return 'Deck'
@@ -20,11 +25,27 @@ const currentLabel = computed(() => {
   return preset ? preset.label : 'Custom'
 })
 
+function openPanel() {
+  open.value = true
+  nextTick(() => firstPresetEl.value?.focus())
+}
+
+// Close the panel; return focus to the trigger unless focus already left the control (outside click).
+function closePanel(returnFocus = true) {
+  open.value = false
+  pending.value = null
+  custom.value = ''
+  if (returnFocus) nextTick(() => triggerEl.value?.focus())
+}
+
+function toggle() {
+  if (open.value) closePanel()
+  else openPanel()
+}
+
 function apply(cards: string[]) {
   store.changeDeck(cards)
-  open.value = false
-  custom.value = ''
-  pending.value = null
+  closePanel()
 }
 
 function choose(cards: string[]) {
@@ -36,25 +57,49 @@ function choose(cards: string[]) {
 function applyCustom() {
   choose(normalizeCustomDeck(custom.value))
 }
+
+// A deck change with votes present asks for confirmation; move focus to the confirm action.
+watch(pending, (cards) => {
+  if (cards) nextTick(() => confirmEl.value?.focus())
+})
+
+function onDocPointer(e: PointerEvent) {
+  if (rootEl.value && !rootEl.value.contains(e.target as Node)) closePanel(false)
+}
+
+watch(open, (isOpen) => {
+  if (!import.meta.client) return
+  if (isOpen) document.addEventListener('pointerdown', onDocPointer)
+  else document.removeEventListener('pointerdown', onDocPointer)
+})
+
+onBeforeUnmount(() => {
+  if (import.meta.client) document.removeEventListener('pointerdown', onDocPointer)
+})
 </script>
 
 <template>
-  <div v-if="isHost" class="relative" @keydown.escape="open = false">
+  <div v-if="isHost" ref="rootEl" class="relative" @keydown.escape="closePanel()">
     <button
+      ref="triggerEl"
       type="button"
-      class="flex h-8 items-center gap-1 rounded-sm border border-line bg-surface px-3 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      aria-label="Choose deck"
+      aria-haspopup="true"
+      aria-controls="deck-panel"
       :aria-expanded="open"
-      @click="open = !open"
+      class="flex h-8 items-center gap-1 rounded-sm border border-line bg-surface px-3 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      @click="toggle"
     >
       {{ currentLabel }}
       <span aria-hidden="true" class="opacity-55">▾</span>
     </button>
 
-    <div v-if="open" class="absolute right-0 z-40 mt-1 w-60 rounded-md border border-line bg-surface p-2 shadow-md">
+    <div v-if="open" id="deck-panel" class="absolute right-0 z-40 mt-1 w-60 rounded-md border border-line bg-surface p-2 shadow-md">
       <div v-if="pending" class="p-1">
         <p class="text-body text-ink">Change the deck? This clears the current votes.</p>
         <div class="mt-3 flex gap-2">
           <button
+            ref="confirmEl"
             type="button"
             class="h-8 rounded-sm bg-accent px-3 font-mono text-meta font-bold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             @click="apply(pending)"
@@ -73,8 +118,9 @@ function applyCustom() {
 
       <template v-else>
         <button
-          v-for="d in DECK_PRESETS"
+          v-for="(d, i) in DECK_PRESETS"
           :key="d.id"
+          :ref="(el) => { if (i === 0) firstPresetEl = el as HTMLButtonElement }"
           type="button"
           class="flex w-full flex-col rounded-sm px-2 py-1 text-left hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           @click="choose(d.cards)"

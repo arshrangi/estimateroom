@@ -12,7 +12,11 @@ const outlierCount = computed(() => votes.value.filter((v) => outlierFlag(v, spr
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-line bg-surface-2 px-4 py-2.5 font-mono text-meta text-ink-soft">
+  <div
+    role="status"
+    aria-live="polite"
+    class="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-line bg-surface-2 px-4 py-2.5 font-mono text-meta text-ink-soft"
+  >
     <template v-if="spread.median !== null">
       <span>Median <b class="font-semibold text-ink">{{ spread.median }}</b></span>
       <span>Range <b class="font-semibold text-ink">{{ spread.min }} to {{ spread.max }}</b></span>

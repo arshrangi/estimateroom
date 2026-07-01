@@ -35,13 +35,13 @@
   --color-line-soft: #ebeff3;
   --color-ink: #1b2430;
   --color-ink-soft: #56636f;
-  --color-ink-muted: #7a8794;
+  --color-ink-muted: #5e6a73;
   --color-accent: #2e6f7e;
   --color-accent-fg: #ffffff;
   --color-accent-bg: #dbeaec;
   --color-accent-border: #b7d6db;
   --color-ok: #3e7a52;
-  --color-outlier: #9a5b2e;
+  --color-outlier: #8d5228;
   --color-outlier-bg: #f3e3d4;
   --color-outlier-border: #e0be9c;
   --color-row-you: #f3f8f9;
@@ -63,7 +63,7 @@
   --color-line-soft: #1e2832;
   --color-ink: #e6ecf2;
   --color-ink-soft: #93a2b2;
-  --color-ink-muted: #6c7c8c;
+  --color-ink-muted: #8a97a6;
   --color-accent: #5fb6c6;
   --color-accent-fg: #11161c;
   --color-accent-bg: #16323a;
@@ -87,4 +87,17 @@ html {
   font-family: var(--font-sans);
   font-size: var(--text-body);
   line-height: 1.5;
+}
+
+/* Honor a user's reduced-motion preference everywhere: neutralize transitions,
+   animations, and smooth scrolling so nothing flips, slides, or fades (NFR5). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

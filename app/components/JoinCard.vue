@@ -94,11 +94,13 @@ const tintClass: Record<AvatarTint, string> = {
             type="text"
             placeholder="e.g. Priya"
             maxlength="40"
+            :aria-invalid="!!error"
+            :aria-describedby="error ? 'name-error' : undefined"
             class="mt-1 h-[38px] w-full rounded-sm border border-line bg-bg px-3 text-body text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             @input="error = ''"
           >
         </label>
-        <p v-if="error" class="mt-1 text-meta text-outlier">{{ error }}</p>
+        <p v-if="error" id="name-error" role="alert" class="mt-1 text-meta text-outlier">{{ error }}</p>
         <p v-else class="mt-1 text-meta text-ink-muted">No signup. This is just how the team sees you.</p>
 
         <div class="mt-4">

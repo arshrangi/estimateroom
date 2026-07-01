@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "dev:party": "wrangler dev --config party/wrangler.jsonc --port 8787",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "postinstall": "nuxt prepare"
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260701.1",
     "@nuxt/eslint": "^1.16.0",
+    "@playwright/test": "^1.61.1",
     "concurrently": "^10.0.3",
     "eslint": "^10.6.0",
     "typescript": "^6.0.3",
