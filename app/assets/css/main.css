@@ -45,6 +45,13 @@
   --color-outlier-bg: #f3e3d4;
   --color-outlier-border: #e0be9c;
   --color-row-you: #f3f8f9;
+
+  /* Avatar tints (muted, on-brand) for the optional initials-square background */
+  --color-avatar-slate: #dee4ea;
+  --color-avatar-teal: #d3e6e9;
+  --color-avatar-forest: #d7e7dc;
+  --color-avatar-clay: #ede0d3;
+  --color-avatar-plum: #e4dce8;
 }
 
 /* Dark theme: hand-tuned, not derived by inversion. */
@@ -66,6 +73,12 @@
   --color-outlier-bg: #322316;
   --color-outlier-border: #5c4326;
   --color-row-you: #152028;
+
+  --color-avatar-slate: #26313d;
+  --color-avatar-teal: #1b3942;
+  --color-avatar-forest: #21362a;
+  --color-avatar-clay: #362a1e;
+  --color-avatar-plum: #2e2637;
 }
 
 html {
