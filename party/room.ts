@@ -37,6 +37,21 @@ export class Room extends Server<Env> {
     else if (msg.type === 'clearVote') this.handleClearVote(connection)
     else if (msg.type === 'setRevealMode') await this.handleSetRevealMode(connection, msg.mode)
     else if (msg.type === 'reveal') await this.handleReveal(connection)
+    else if (msg.type === 'revote' || msg.type === 'next') await this.handleRoundReset(connection)
+  }
+
+  // Re-vote (same item) and Next (fresh round) both reset the round: clear votes and un-reveal.
+  // With no server-stored item, their effect is identical; the distinction is the host's intent.
+  async handleRoundReset(connection: Connection) {
+    if (!(await this.isHost(connection))) return
+    for (const c of this.getConnections<ConnState>()) {
+      const p = c.state?.participant
+      if (p && (p.hasVoted || p.vote !== null)) {
+        c.setState({ participant: { ...p, vote: null, hasVoted: false } } satisfies ConnState)
+      }
+    }
+    await this.ctx.storage.put(REVEALED_KEY, false)
+    await this.broadcastState()
   }
 
   async handleJoin(connection: Connection, msg: JoinMessage) {

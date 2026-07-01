@@ -11,6 +11,8 @@ export const useRoomStore = defineStore('room', () => {
 
   /* ── inbound: apply server truth ── */
   function applyState(state: RoomState) {
+    // A revealed -> not-revealed transition means the round was reset; drop the stale local selection.
+    if (roomState.value?.revealed && !state.revealed) myVote.value = null
     roomState.value = state
   }
   function applyJoined(participant: Participant) {
@@ -57,6 +59,12 @@ export const useRoomStore = defineStore('room', () => {
   function reveal() {
     transport.value?.({ type: 'reveal' })
   }
+  function revote() {
+    transport.value?.({ type: 'revote' })
+  }
+  function next() {
+    transport.value?.({ type: 'next' })
+  }
 
   function reset() {
     roomState.value = null
@@ -89,6 +97,8 @@ export const useRoomStore = defineStore('room', () => {
     clearVote,
     setRevealMode,
     reveal,
+    revote,
+    next,
     reset,
   }
 })
