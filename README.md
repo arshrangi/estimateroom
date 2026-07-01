@@ -1,75 +1,39 @@
-# Nuxt Minimal Starter
+# Pointr
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Ad-free, account-free, open-source planning poker for agile teams. Open a room, paste the link, estimate.
 
-## Setup
+## Architecture at a glance
 
-Make sure to install dependencies:
+Pointr is **two Cloudflare Workers in one repo**:
+
+- **The Nuxt app** (this root) — the UI and `POST /api/rooms`, built with the Nitro `cloudflare_module` preset.
+- **The party Worker** (`party/`) — the realtime layer built on [partyserver](https://github.com/cloudflare/partykit/tree/main/packages/partyserver): **one Durable Object per room** acting as the authoritative WebSocket server, serving `/parties/room/:roomId`.
+
+The browser connects to the party Worker via the `NUXT_PUBLIC_PARTY_HOST` runtime config. The message contract lives in `shared/` and is imported by both sides.
+
+## Development
+
+Install deps, then run **both** Workers together:
 
 ```bash
-# npm
-npm install
-
-# pnpm
 pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+pnpm dev:all        # Nuxt on :3000 + party Worker on :8787
 ```
 
-## Development Server
+`dev:all` runs `nuxt dev` and the party Worker (`wrangler dev`) side by side. The app defaults `partyHost` to `127.0.0.1:8787`, so realtime works out of the box.
 
-Start the development server on `http://localhost:3000`:
+Running `pnpm dev` alone starts only the UI — the room page will keep trying to reach the party Worker on :8787 until you also run `pnpm dev:party`.
+
+## Checks
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+pnpm test            # Vitest unit tests
+pnpm typecheck       # Nuxt app types
+pnpm typecheck:party # party Worker types
+pnpm lint            # ESLint
+pnpm build && pnpm check:bundle   # build + enforce the ~200 KB gzip JS budget
 ```
 
-## Production
+## Deployment
 
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Two Workers, deployed separately (both free-tier). Set `NUXT_PUBLIC_PARTY_HOST` on the Nuxt Worker to the deployed party Worker's origin. Full deploy + self-host docs are tracked for a later milestone.
