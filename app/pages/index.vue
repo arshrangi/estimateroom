@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ABOUTME: Landing surface. One action creates a room and drops the facilitator into it.
+// ABOUTME: Landing surface. One action creates a room, copies its invite link, and drops the facilitator in.
 const creating = ref(false)
 
 async function createRoom() {
@@ -7,7 +7,9 @@ async function createRoom() {
   creating.value = true
   try {
     const { roomId } = await $fetch('/api/rooms', { method: 'POST' })
-    await navigateTo(`/r/${roomId}?created=1`)
+    // Copy within this click's activation window, before navigating away.
+    await useInvite(roomId).copy()
+    await navigateTo(`/r/${roomId}`)
   } finally {
     creating.value = false
   }

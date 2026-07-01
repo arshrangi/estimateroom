@@ -31,4 +31,9 @@ describe('publicParticipant (secrecy)', () => {
   it('exposes the vote value once revealed', () => {
     expect(publicParticipant(voted, true).vote).toBe('5')
   })
+
+  it('lets the viewer see their own vote pre-reveal but not others', () => {
+    expect(publicParticipant(voted, false, 'p1').vote).toBe('5')
+    expect(publicParticipant(voted, false, 'other').vote).toBeNull()
+  })
 })

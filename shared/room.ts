@@ -15,8 +15,10 @@ export function emptyRoomState(roomId: string): RoomState {
 
 /**
  * The client-safe view of a participant. Before reveal the vote value is stripped to null
- * (only hasVoted is exposed); this is the secrecy invariant (AR12).
+ * (only hasVoted is exposed) — the secrecy invariant (AR12) — except for the viewer's own
+ * participant, who may always see their own selection (e.g. to restore it after a reconnect).
  */
-export function publicParticipant(participant: Participant, revealed: boolean): Participant {
-  return revealed ? participant : { ...participant, vote: null }
+export function publicParticipant(participant: Participant, revealed: boolean, viewerId?: string): Participant {
+  if (revealed || participant.id === viewerId) return participant
+  return { ...participant, vote: null }
 }

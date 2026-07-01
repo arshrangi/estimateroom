@@ -1,34 +1,42 @@
-// ABOUTME: Manages the room WebSocket: connect, announce join on open, and route server messages to the store.
-// ABOUTME: The store is the read-side replica; this composable is the only thing that talks to the socket.
+// ABOUTME: Manages the room WebSocket: connect, (re)announce join on every open, route messages to the store.
+// ABOUTME: partysocket auto-reconnects with backoff; on reconnect the DO replays state and our own vote is restored.
 import { PartySocket } from 'partysocket'
 import type { ClientMessage } from '~~/shared/protocol'
 import { ServerMessageSchema } from '~~/shared/protocol'
 
+export type ConnectionStatus = 'connecting' | 'open' | 'reconnecting' | 'closed'
+
 export function useRoomSocket(roomId: string) {
   const store = useRoomStore()
   const { identity } = useIdentity()
-  const status = ref<'connecting' | 'open' | 'closed'>('connecting')
+  const status = ref<ConnectionStatus>('connecting')
   let socket: PartySocket | null = null
+  let closing = false
+
+  function announceJoin() {
+    const join: ClientMessage = {
+      type: 'join',
+      participantId: identity.value.participantId,
+      name: identity.value.name,
+      avatar: identity.value.avatar,
+      role: identity.value.observer ? 'observer' : 'voter',
+    }
+    socket?.send(JSON.stringify(join))
+  }
 
   function connect() {
-    const host = useRuntimeConfig().public.partyHost
-    socket = new PartySocket({ host, party: 'room', room: roomId })
-
-    store.bindTransport((msg) => socket?.send(JSON.stringify(msg)))
+    closing = false
+    socket = new PartySocket({ host: useRuntimeConfig().public.partyHost, party: 'room', room: roomId })
 
     socket.addEventListener('open', () => {
       status.value = 'open'
-      const join: ClientMessage = {
-        type: 'join',
-        participantId: identity.value.participantId,
-        name: identity.value.name,
-        avatar: identity.value.avatar,
-        role: identity.value.observer ? 'observer' : 'voter',
-      }
-      socket?.send(JSON.stringify(join))
+      announceJoin() // re-announce on reconnect so the DO replays state
     })
 
-    socket.addEventListener('close', () => (status.value = 'closed'))
+    // partysocket keeps retrying after a drop; surface that as "reconnecting" unless we closed on purpose.
+    socket.addEventListener('close', () => {
+      status.value = closing ? 'closed' : 'reconnecting'
+    })
 
     socket.addEventListener('message', (event: MessageEvent) => {
       let data: unknown
@@ -40,17 +48,21 @@ export function useRoomSocket(roomId: string) {
       const parsed = ServerMessageSchema.safeParse(data)
       if (!parsed.success) return
       const msg = parsed.data
-      if (msg.type === 'state') store.applyState(msg.state)
-      else if (msg.type === 'participantJoined') store.applyJoined(msg.participant)
-      else if (msg.type === 'participantLeft') store.applyLeft(msg.participantId)
-      else if (msg.type === 'voteStatusChanged') store.applyVoteStatus(msg.participantId, msg.hasVoted)
+      if (msg.type === 'state') {
+        store.applyState(msg.state)
+        // Restore our own selection after a reconnect (the personalized snapshot includes our vote).
+        const me = msg.state.participants.find((p) => p.id === identity.value.participantId)
+        if (me && me.vote !== null) store.setMyVote(me.vote)
+      } else if (msg.type === 'voteStatusChanged') {
+        store.applyVoteStatus(msg.participantId, msg.hasVoted)
+      }
     })
   }
 
   function disconnect() {
+    closing = true
     socket?.close()
     socket = null
-    store.unbindTransport()
     store.reset()
   }
 

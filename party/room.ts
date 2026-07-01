@@ -1,14 +1,26 @@
 // ABOUTME: The authoritative per-room WebSocket server; one Durable Object instance per room.
-// ABOUTME: Owns presence, deck, hidden votes, and reveal. Vote values never leave the DO until reveal.
+// ABOUTME: Participants + votes live in durable storage so a refresh restores identity and vote; connected is derived.
 import { Server, type Connection, type WSMessage } from 'partyserver'
-import { ClientMessageSchema, type ChangeDeckMessage, type JoinMessage, type Participant, type RevealMode, type RoomState, type ServerMessage } from '../shared/protocol'
-import { emptyRoomState, publicParticipant } from '../shared/room'
+import type { AvatarTint } from '../shared/avatars'
+import { ClientMessageSchema, type ChangeDeckMessage, type JoinMessage, type Participant, type RevealMode, type Role, type RoomState, type ServerMessage } from '../shared/protocol'
+import { publicParticipant } from '../shared/room'
 import type { Env } from './env'
 
-interface ConnState {
-  participant: Participant
+/** What we persist per participant. Vote survives disconnects; `connected` is derived from live sockets. */
+interface PersistedParticipant {
+  id: string
+  name: string
+  avatar: AvatarTint | null
+  role: Role
+  vote: string | null
 }
 
+type Registry = Record<string, PersistedParticipant>
+interface ConnState {
+  pid: string
+}
+
+const PARTICIPANTS_KEY = 'participants'
 const HOST_KEY = 'hostId'
 const DECK_KEY = 'deck'
 const REVEALED_KEY = 'revealed'
@@ -34,87 +46,68 @@ export class Room extends Server<Env> {
     if (msg.type === 'join') await this.handleJoin(connection, msg)
     else if (msg.type === 'changeDeck') await this.handleChangeDeck(connection, msg)
     else if (msg.type === 'vote') await this.handleVote(connection, msg.card)
-    else if (msg.type === 'clearVote') this.handleClearVote(connection)
+    else if (msg.type === 'clearVote') await this.handleClearVote(connection)
     else if (msg.type === 'setRevealMode') await this.handleSetRevealMode(connection, msg.mode)
     else if (msg.type === 'reveal') await this.handleReveal(connection)
     else if (msg.type === 'revote' || msg.type === 'next') await this.handleRoundReset(connection)
     else if (msg.type === 'kick') await this.handleKick(connection, msg.participantId)
   }
 
-  // Re-vote (same item) and Next (fresh round) both reset the round: clear votes and un-reveal.
-  // With no server-stored item, their effect is identical; the distinction is the host's intent.
-  async handleRoundReset(connection: Connection) {
-    if (!(await this.isHost(connection))) return
-    this.clearAllVotes()
-    await this.ctx.storage.put(REVEALED_KEY, false)
-    await this.broadcastState()
-  }
-
-  async handleKick(connection: Connection, participantId: string) {
-    if (!(await this.isHost(connection))) return
-    for (const c of this.getConnections<ConnState>()) {
-      if ((c.state as ConnState | null)?.participant?.id === participantId) {
-        c.close(1000, 'Removed by host')
-      }
-    }
-  }
-
-  clearAllVotes() {
-    for (const c of this.getConnections<ConnState>()) {
-      const p = c.state?.participant
-      if (p && (p.hasVoted || p.vote !== null)) {
-        c.setState({ participant: { ...p, vote: null, hasVoted: false } } satisfies ConnState)
-      }
-    }
-  }
-
   async handleJoin(connection: Connection, msg: JoinMessage) {
+    const registry = await this.getRegistry()
     let hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null
     if (!hostId) {
       hostId = msg.participantId
       await this.ctx.storage.put(HOST_KEY, hostId)
     }
-
-    const participant: Participant = {
+    const existing = registry[msg.participantId]
+    registry[msg.participantId] = {
       id: msg.participantId,
       name: msg.name,
       avatar: msg.avatar,
       role: msg.role,
-      connected: true,
-      hasVoted: false,
-      vote: null,
+      vote: existing?.vote ?? null, // reconnect restores the prior vote
     }
-    connection.setState({ participant } satisfies ConnState)
+    await this.putRegistry(registry)
+    connection.setState({ pid: msg.participantId } satisfies ConnState)
 
-    this.broadcast(encode({ type: 'participantJoined', participant }), [connection.id])
-    connection.send(encode({ type: 'state', state: await this.buildState() }))
+    // Personalized snapshot: the joiner sees their own vote; everyone else gets the shared (secret) view.
+    connection.send(encode({ type: 'state', state: await this.buildState(msg.participantId) }))
+    this.broadcast(encode({ type: 'state', state: await this.buildState() }), [connection.id])
   }
 
   async handleVote(connection: Connection, card: string) {
-    const participant = (connection.state as ConnState | null)?.participant
-    if (!participant || participant.role === 'observer') return
+    const pid = this.pidOf(connection)
+    if (!pid) return
+    const registry = await this.getRegistry()
+    const p = registry[pid]
+    if (!p || p.role === 'observer') return
     const deck = (await this.ctx.storage.get<string[]>(DECK_KEY)) ?? null
     if (!deck || !deck.includes(card)) return // INVALID_VOTE (typed error surfaces in a later story)
-    // The value is stored server-side only; it never leaves the DO until reveal.
-    connection.setState({ participant: { ...participant, vote: card, hasVoted: true } } satisfies ConnState)
-    this.broadcast(encode({ type: 'voteStatusChanged', participantId: participant.id, hasVoted: true }))
+    p.vote = card // stored server-side only; never broadcast before reveal
+    await this.putRegistry(registry)
+    this.broadcast(encode({ type: 'voteStatusChanged', participantId: pid, hasVoted: true }))
 
     const mode = (await this.ctx.storage.get<RevealMode>(REVEALMODE_KEY)) ?? 'host'
-    if (mode === 'auto' && this.allVotersVoted()) await this.reveal()
+    if (mode === 'auto' && this.allVotersVoted(registry)) await this.reveal()
   }
 
-  handleClearVote(connection: Connection) {
-    const participant = (connection.state as ConnState | null)?.participant
-    if (!participant) return
-    connection.setState({ participant: { ...participant, vote: null, hasVoted: false } } satisfies ConnState)
-    this.broadcast(encode({ type: 'voteStatusChanged', participantId: participant.id, hasVoted: false }))
+  async handleClearVote(connection: Connection) {
+    const pid = this.pidOf(connection)
+    if (!pid) return
+    const registry = await this.getRegistry()
+    const p = registry[pid]
+    if (!p) return
+    p.vote = null
+    await this.putRegistry(registry)
+    this.broadcast(encode({ type: 'voteStatusChanged', participantId: pid, hasVoted: false }))
   }
 
   async handleChangeDeck(connection: Connection, msg: ChangeDeckMessage) {
     if (!(await this.isHost(connection))) return
     await this.ctx.storage.put(DECK_KEY, msg.cards)
     // Changing the deck clears the round: old card values may not exist in the new deck.
-    this.clearAllVotes()
+    await this.clearAllVotes()
     await this.ctx.storage.put(REVEALED_KEY, false)
     await this.broadcastState()
   }
@@ -130,44 +123,98 @@ export class Room extends Server<Env> {
     await this.reveal()
   }
 
+  // Re-vote and Next both reset the round: clear votes and un-reveal. Identical effect (no stored item).
+  async handleRoundReset(connection: Connection) {
+    if (!(await this.isHost(connection))) return
+    await this.clearAllVotes()
+    await this.ctx.storage.put(REVEALED_KEY, false)
+    await this.broadcastState()
+  }
+
+  async handleKick(connection: Connection, participantId: string) {
+    if (!(await this.isHost(connection))) return
+    const registry = await this.getRegistry()
+    if (!registry[participantId]) return
+    const next: Registry = {}
+    for (const [id, p] of Object.entries(registry)) if (id !== participantId) next[id] = p
+    await this.putRegistry(next)
+    for (const c of this.getConnections<ConnState>()) {
+      if (c.state?.pid === participantId) c.close(1000, 'Removed by host')
+    }
+    await this.broadcastState()
+  }
+
+  async onClose() {
+    // A socket dropped: the participant stays in the registry but is now derived as disconnected.
+    await this.broadcastState()
+  }
+
   async reveal() {
     await this.ctx.storage.put(REVEALED_KEY, true)
     await this.broadcastState()
   }
 
-  onClose(connection: Connection) {
-    const participant = (connection.state as ConnState | null)?.participant
-    if (!participant) return
-    this.broadcast(encode({ type: 'participantLeft', participantId: participant.id }))
+  async clearAllVotes() {
+    const registry = await this.getRegistry()
+    for (const p of Object.values(registry)) p.vote = null
+    await this.putRegistry(registry)
   }
 
   async isHost(connection: Connection): Promise<boolean> {
     const hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null
-    const id = (connection.state as ConnState | null)?.participant?.id
-    return !!id && id === hostId
+    const pid = this.pidOf(connection)
+    return !!pid && pid === hostId
   }
 
-  allVotersVoted(): boolean {
-    const voters = [...this.getConnections<ConnState>()]
-      .map((c) => c.state?.participant)
-      .filter((p): p is Participant => !!p && p.role === 'voter')
-    return voters.length > 0 && voters.every((p) => p.hasVoted)
+  allVotersVoted(registry: Registry): boolean {
+    const connected = this.connectedIds()
+    const voters = Object.values(registry).filter((p) => p.role === 'voter' && connected.has(p.id))
+    return voters.length > 0 && voters.every((p) => p.vote !== null)
+  }
+
+  pidOf(connection: Connection): string | undefined {
+    return (connection.state as ConnState | null)?.pid
+  }
+
+  connectedIds(): Set<string> {
+    const ids = new Set<string>()
+    for (const c of this.getConnections<ConnState>()) {
+      const pid = c.state?.pid
+      if (pid) ids.add(pid)
+    }
+    return ids
+  }
+
+  async getRegistry(): Promise<Registry> {
+    return (await this.ctx.storage.get<Registry>(PARTICIPANTS_KEY)) ?? {}
+  }
+  async putRegistry(registry: Registry) {
+    await this.ctx.storage.put(PARTICIPANTS_KEY, registry)
   }
 
   async broadcastState() {
     this.broadcast(encode({ type: 'state', state: await this.buildState() }))
   }
 
-  async buildState(): Promise<RoomState> {
+  async buildState(viewerId?: string): Promise<RoomState> {
+    const registry = await this.getRegistry()
     const hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null
     const deck = (await this.ctx.storage.get<string[]>(DECK_KEY)) ?? null
     const revealed = (await this.ctx.storage.get<boolean>(REVEALED_KEY)) ?? false
     const revealMode = (await this.ctx.storage.get<RevealMode>(REVEALMODE_KEY)) ?? 'host'
-    const byId = new Map<string, Participant>()
-    for (const c of this.getConnections<ConnState>()) {
-      const participant = c.state?.participant
-      if (participant) byId.set(participant.id, publicParticipant(participant, revealed))
-    }
-    return { ...emptyRoomState(this.name), hostId, deck, revealed, revealMode, participants: [...byId.values()] }
+    const connected = this.connectedIds()
+    const participants = Object.values(registry).map((rp) => {
+      const full: Participant = {
+        id: rp.id,
+        name: rp.name,
+        avatar: rp.avatar,
+        role: rp.role,
+        connected: connected.has(rp.id),
+        hasVoted: rp.vote !== null,
+        vote: rp.vote,
+      }
+      return publicParticipant(full, revealed, viewerId)
+    })
+    return { roomId: this.name, deck, revealMode, hostId, revealed, participants }
   }
 }

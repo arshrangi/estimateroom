@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import { AVATAR_TINTS } from './avatars'
 import { MAX_CARD_LEN, MAX_DECK_CARDS } from './decks'
-import { ParticipantSchema, RevealModeSchema, RoleSchema, RoomStateSchema } from './types'
+import { RevealModeSchema, RoleSchema, RoomStateSchema } from './types'
 
 export { RoomStateSchema }
 export type { Participant, RevealMode, Role, RoomState } from './types'
@@ -77,16 +77,6 @@ export const StateMessageSchema = z.object({
 })
 export type StateMessage = z.infer<typeof StateMessageSchema>
 
-export const ParticipantJoinedSchema = z.object({
-  type: z.literal('participantJoined'),
-  participant: ParticipantSchema,
-})
-
-export const ParticipantLeftSchema = z.object({
-  type: z.literal('participantLeft'),
-  participantId: z.string(),
-})
-
 /** Pre-reveal vote status. Carries only whether the participant has voted, never the value. */
 export const VoteStatusChangedSchema = z.object({
   type: z.literal('voteStatusChanged'),
@@ -94,10 +84,5 @@ export const VoteStatusChangedSchema = z.object({
   hasVoted: z.boolean(),
 })
 
-export const ServerMessageSchema = z.discriminatedUnion('type', [
-  StateMessageSchema,
-  ParticipantJoinedSchema,
-  ParticipantLeftSchema,
-  VoteStatusChangedSchema,
-])
+export const ServerMessageSchema = z.discriminatedUnion('type', [StateMessageSchema, VoteStatusChangedSchema])
 export type ServerMessage = z.infer<typeof ServerMessageSchema>

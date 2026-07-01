@@ -48,10 +48,11 @@ describe('ServerMessageSchema', () => {
     expect(() => ServerMessageSchema.parse({ type: 'nope' })).toThrow()
   })
 
-  it('parses participantJoined and participantLeft', () => {
-    const p = { id: 'p1', name: 'Priya', avatar: 'teal', role: 'voter', connected: true, hasVoted: false, vote: null }
-    expect(ServerMessageSchema.parse({ type: 'participantJoined', participant: p })).toMatchObject({ type: 'participantJoined' })
-    expect(ServerMessageSchema.parse({ type: 'participantLeft', participantId: 'p1' })).toMatchObject({ type: 'participantLeft' })
+  it('parses voteStatusChanged with only a hasVoted boolean', () => {
+    expect(ServerMessageSchema.parse({ type: 'voteStatusChanged', participantId: 'p1', hasVoted: true })).toMatchObject({
+      type: 'voteStatusChanged',
+      hasVoted: true,
+    })
   })
 })
 

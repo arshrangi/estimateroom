@@ -1,28 +1,37 @@
 <script setup lang="ts">
-// ABOUTME: The room surface. Gates behind the JoinCard, then connects and shows the live session
-// ABOUTME: as one dense vertical stack: status strip, participant table, and the deck + host controls row.
+// ABOUTME: The room surface. Returning members auto-enter (no Join screen on refresh); new members use the JoinCard.
+// ABOUTME: Shows the live session as one dense stack, plus a transient reconnecting banner.
+import { hasProfile } from '~~/shared/identity'
+
 const route = useRoute()
 const roomId = computed(() => String(route.params.roomId))
 
 const store = useRoomStore()
-const { connect, disconnect } = useRoomSocket(roomId.value)
+const { identity, load } = useIdentity()
+const { status, connect, disconnect } = useRoomSocket(roomId.value)
 
 const entered = ref(false)
 
-function onJoin() {
+function enter() {
   entered.value = true
   connect()
-  // Runs inside the join click, so clipboard access still has user activation.
-  if (route.query.created) useInvite(roomId.value).copy()
 }
+
+onMounted(() => {
+  load()
+  // A remembered participant is never dropped to the Join screen; they re-enter directly.
+  if (hasProfile(identity.value)) enter()
+})
 
 onBeforeUnmount(disconnect)
 </script>
 
 <template>
-  <JoinCard v-if="!entered" @join="onJoin" />
+  <JoinCard v-if="!entered" @join="enter" />
 
   <div v-else class="mt-4 flex flex-col gap-3">
+    <ReconnectingIndicator :show="status === 'reconnecting'" />
+
     <VotingStatus v-if="!store.revealed" />
     <SpreadSummary v-else />
 
