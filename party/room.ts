@@ -20,6 +20,7 @@ interface ConnState {
   pid: string
 }
 
+const DEFAULT_IDLE_EXPIRY_MS = 30 * 60 * 1000
 const PARTICIPANTS_KEY = 'participants'
 const HOST_KEY = 'hostId'
 const DECK_KEY = 'deck'
@@ -69,6 +70,7 @@ export class Room extends Server<Env> {
       vote: existing?.vote ?? null, // reconnect restores the prior vote
     }
     await this.putRegistry(registry)
+    await this.ctx.storage.deleteAlarm() // someone is here now; cancel any pending idle expiry
     connection.setState({ pid: msg.participantId } satisfies ConnState)
 
     // Personalized snapshot: the joiner sees their own vote; everyone else gets the shared (secret) view.
@@ -144,9 +146,23 @@ export class Room extends Server<Env> {
     await this.broadcastState()
   }
 
-  async onClose() {
+  async onClose(connection: Connection) {
     // A socket dropped: the participant stays in the registry but is now derived as disconnected.
-    await this.broadcastState()
+    this.broadcast(encode({ type: 'state', state: await this.buildState(undefined, connection.id) }))
+    // If nobody is left connected, start the idle-expiry countdown.
+    if (this.connectedIds(connection.id).size === 0) {
+      await this.ctx.storage.setAlarm(Date.now() + this.idleExpiryMs())
+    }
+  }
+
+  async onAlarm() {
+    // Expire the room only if it is still empty; a reconnect would have cancelled this.
+    if (this.connectedIds().size === 0) await this.ctx.storage.deleteAll()
+  }
+
+  idleExpiryMs(): number {
+    const override = Number(this.env.IDLE_EXPIRY_MS)
+    return Number.isFinite(override) && override > 0 ? override : DEFAULT_IDLE_EXPIRY_MS
   }
 
   async reveal() {
@@ -176,9 +192,11 @@ export class Room extends Server<Env> {
     return (connection.state as ConnState | null)?.pid
   }
 
-  connectedIds(): Set<string> {
+  // excludeConnId lets onClose ignore the socket that is currently closing (it may still be listed).
+  connectedIds(excludeConnId?: string): Set<string> {
     const ids = new Set<string>()
     for (const c of this.getConnections<ConnState>()) {
+      if (c.id === excludeConnId) continue
       const pid = c.state?.pid
       if (pid) ids.add(pid)
     }
@@ -196,13 +214,13 @@ export class Room extends Server<Env> {
     this.broadcast(encode({ type: 'state', state: await this.buildState() }))
   }
 
-  async buildState(viewerId?: string): Promise<RoomState> {
+  async buildState(viewerId?: string, excludeConnId?: string): Promise<RoomState> {
     const registry = await this.getRegistry()
     const hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null
     const deck = (await this.ctx.storage.get<string[]>(DECK_KEY)) ?? null
     const revealed = (await this.ctx.storage.get<boolean>(REVEALED_KEY)) ?? false
     const revealMode = (await this.ctx.storage.get<RevealMode>(REVEALMODE_KEY)) ?? 'host'
-    const connected = this.connectedIds()
+    const connected = this.connectedIds(excludeConnId)
     const participants = Object.values(registry).map((rp) => {
       const full: Participant = {
         id: rp.id,
