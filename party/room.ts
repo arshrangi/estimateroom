@@ -23,6 +23,7 @@ interface ConnState {
 const DEFAULT_IDLE_EXPIRY_MS = 30 * 60 * 1000
 const DEFAULT_HOST_GRACE_MS = 10 * 1000
 const PARTICIPANTS_KEY = 'participants'
+const EXPIRED_KEY = 'expired'
 const HOST_KEY = 'hostId'
 const DECK_KEY = 'deck'
 const REVEALED_KEY = 'revealed'
@@ -65,6 +66,11 @@ export class Room extends Server<Env> {
   }
 
   async handleJoin(connection: Connection, msg: JoinMessage) {
+    if (await this.ctx.storage.get<boolean>(EXPIRED_KEY)) {
+      connection.send(encode({ type: 'error', code: 'ROOM_EXPIRED', message: 'This room has expired.' }))
+      connection.close(1000, 'expired')
+      return
+    }
     const registry = await this.getRegistry()
     let hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null
     if (!hostId) {
@@ -173,7 +179,9 @@ export class Room extends Server<Env> {
   async onAlarm() {
     const connected = this.connectedIds()
     if (connected.size === 0) {
-      await this.ctx.storage.deleteAll() // expired
+      // Expire: wipe state, but leave a tombstone so a later visit can be told the room expired.
+      await this.ctx.storage.deleteAll()
+      await this.ctx.storage.put(EXPIRED_KEY, true)
       return
     }
     const hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null

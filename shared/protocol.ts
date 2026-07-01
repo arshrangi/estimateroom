@@ -88,5 +88,19 @@ export const VoteStatusChangedSchema = z.object({
   hasVoted: z.boolean(),
 })
 
-export const ServerMessageSchema = z.discriminatedUnion('type', [StateMessageSchema, VoteStatusChangedSchema])
+/** Typed error codes; the client maps these to microcopy and never shows raw server text. */
+export const ErrorCodeSchema = z.enum(['ROOM_NOT_FOUND', 'ROOM_EXPIRED'])
+export type ErrorCode = z.infer<typeof ErrorCodeSchema>
+
+export const ErrorMessageSchema = z.object({
+  type: z.literal('error'),
+  code: ErrorCodeSchema,
+  message: z.string(),
+})
+
+export const ServerMessageSchema = z.discriminatedUnion('type', [
+  StateMessageSchema,
+  VoteStatusChangedSchema,
+  ErrorMessageSchema,
+])
 export type ServerMessage = z.infer<typeof ServerMessageSchema>
