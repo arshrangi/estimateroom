@@ -1,0 +1,77 @@
+/* ABOUTME: Pointr's design-token foundation and base styles, mapped from DESIGN.md.
+   ABOUTME: Light and dark are first-class, hand-tuned sets; dark overrides the color custom properties. */
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Type families */
+  --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  /* Type scale (size + line-height where meaningful) */
+  --text-label-caps: 10.5px;
+  --text-meta: 12px;
+  --text-body: 13px;
+  --text-body--line-height: 1.5;
+  --text-vote: 16px;
+  --text-heading: 18px;
+  --text-heading--line-height: 1.3;
+  --text-wordmark: 23px;
+
+  /* Corner radius */
+  --radius-sm: 4px;
+  --radius-md: 5px;
+  --radius-lg: 6px;
+
+  /* Spacing: Tailwind's default 4px-based scale already yields every DESIGN.md step
+     (4=1, 6=1.5, 8=2, 12=3, 16=4, 18=4.5, 24=6), so no override is needed. */
+
+  /* Colors — light (default set; dark overrides below) */
+  --color-bg: #eef1f4;
+  --color-surface: #ffffff;
+  --color-surface-2: #e4e9ef;
+  --color-line: #d2dae2;
+  --color-line-soft: #ebeff3;
+  --color-ink: #1b2430;
+  --color-ink-soft: #56636f;
+  --color-ink-muted: #7a8794;
+  --color-accent: #2e6f7e;
+  --color-accent-fg: #ffffff;
+  --color-accent-bg: #dbeaec;
+  --color-accent-border: #b7d6db;
+  --color-ok: #3e7a52;
+  --color-outlier: #9a5b2e;
+  --color-outlier-bg: #f3e3d4;
+  --color-outlier-border: #e0be9c;
+  --color-row-you: #f3f8f9;
+}
+
+/* Dark theme: hand-tuned, not derived by inversion. */
+.dark {
+  --color-bg: #11161c;
+  --color-surface: #18202a;
+  --color-surface-2: #1f2935;
+  --color-line: #2a3643;
+  --color-line-soft: #1e2832;
+  --color-ink: #e6ecf2;
+  --color-ink-soft: #93a2b2;
+  --color-ink-muted: #6c7c8c;
+  --color-accent: #5fb6c6;
+  --color-accent-fg: #11161c;
+  --color-accent-bg: #16323a;
+  --color-accent-border: #27505a;
+  --color-ok: #7fc396;
+  --color-outlier: #d89a5e;
+  --color-outlier-bg: #322316;
+  --color-outlier-border: #5c4326;
+  --color-row-you: #152028;
+}
+
+html {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.5;
+}
