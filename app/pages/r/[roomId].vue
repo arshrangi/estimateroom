@@ -23,7 +23,8 @@ onBeforeUnmount(disconnect)
 <template>
   <JoinCard v-if="!entered" @join="onJoin" />
   <section v-else class="mt-4">
-    <p class="mb-3 font-mono text-meta text-ink-soft">Room {{ roomId }} — {{ status }}</p>
+    <p class="mb-2 font-mono text-meta text-ink-muted">Room {{ roomId }} — {{ status }}</p>
+    <VotingStatus class="mb-3" />
     <ParticipantTable />
     <p v-if="store.participants.length <= 1" class="mt-3 text-body text-ink-soft">
       Share the link to get your team in.

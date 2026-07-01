@@ -1,15 +1,16 @@
 <script setup lang="ts">
-// ABOUTME: One participant row: identity on the left, vote/status on the right (status arrives in Epic 2).
-// ABOUTME: The row announces the person's name and role to screen readers.
+// ABOUTME: One participant row: identity on the left, voted/waiting status on the right.
+// ABOUTME: The row's accessible label carries name, role, and vote status; the visual cell mirrors it.
 import type { Participant } from '~~/shared/protocol'
 
 const props = defineProps<{ participant: Participant; isHost: boolean; isYou: boolean }>()
 
-const roleLabel = computed(() => {
+const descriptor = computed(() => {
   const parts: string[] = []
   if (props.isHost) parts.push('host')
   parts.push(props.participant.role === 'observer' ? 'observer' : 'voter')
   if (props.isYou) parts.push('you')
+  if (props.participant.role !== 'observer') parts.push(props.participant.hasVoted ? 'voted' : 'waiting')
   return parts.join(', ')
 })
 </script>
@@ -18,7 +19,7 @@ const roleLabel = computed(() => {
   <li
     class="flex items-center justify-between px-4 py-2 not-first:border-t not-first:border-line-soft"
     :class="isYou ? 'bg-row-you' : ''"
-    :aria-label="`${participant.name} (${roleLabel})`"
+    :aria-label="`${participant.name} (${descriptor})`"
   >
     <div class="flex items-center gap-2">
       <UserAvatar :name="participant.name" :tint="participant.avatar" />
@@ -30,6 +31,13 @@ const roleLabel = computed(() => {
       <span v-if="isYou" class="text-meta text-accent">· you</span>
       <span v-if="participant.role === 'observer'" class="font-mono text-meta text-ink-muted">observer</span>
     </div>
-    <div aria-hidden="true" class="text-right" />
+
+    <div aria-hidden="true" class="text-right font-mono text-meta">
+      <span v-if="participant.role === 'observer'" class="text-ink-muted">—</span>
+      <span v-else-if="participant.hasVoted" class="inline-flex items-center gap-1 text-ok">
+        <span>✓</span> voted
+      </span>
+      <span v-else class="text-ink-muted">waiting</span>
+    </div>
   </li>
 </template>
