@@ -1,14 +1,20 @@
 <script setup lang="ts">
-// ABOUTME: The room surface. Gates behind the JoinCard, then connects and shows the live participant table.
+// ABOUTME: The room surface. Gates behind the JoinCard, connects, shows the live participant table,
+// ABOUTME: auto-copies the invite when the room was just created, and guides an empty room.
 const route = useRoute()
 const roomId = computed(() => String(route.params.roomId))
 
-const entered = ref(false)
+const store = useRoomStore()
 const { status, connect, disconnect } = useRoomSocket(roomId.value)
+const { copy } = useInvite(roomId.value)
+
+const entered = ref(false)
 
 function onJoin() {
   entered.value = true
   connect()
+  // Runs inside the join click, so clipboard access still has user activation.
+  if (route.query.created) copy()
 }
 
 onBeforeUnmount(disconnect)
@@ -19,5 +25,8 @@ onBeforeUnmount(disconnect)
   <section v-else class="mt-4">
     <p class="mb-3 font-mono text-meta text-ink-soft">Room {{ roomId }} — {{ status }}</p>
     <ParticipantTable />
+    <p v-if="store.participants.length <= 1" class="mt-3 text-body text-ink-soft">
+      Share the link to get your team in.
+    </p>
   </section>
 </template>

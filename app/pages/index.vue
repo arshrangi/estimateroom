@@ -7,7 +7,7 @@ async function createRoom() {
   creating.value = true
   try {
     const { roomId } = await $fetch('/api/rooms', { method: 'POST' })
-    await navigateTo(`/r/${roomId}`)
+    await navigateTo(`/r/${roomId}?created=1`)
   } finally {
     creating.value = false
   }

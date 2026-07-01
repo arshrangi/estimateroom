@@ -11,5 +11,6 @@ onMounted(init)
       <TheTopBar />
       <NuxtPage />
     </div>
+    <AppToast />
   </div>
 </template>
