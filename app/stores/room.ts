@@ -56,6 +56,9 @@ export const useRoomStore = defineStore('room', () => {
   function kick(participantId: string) {
     transport.value?.({ type: 'kick', participantId })
   }
+  function makeHost(participantId: string) {
+    transport.value?.({ type: 'makeHost', participantId })
+  }
 
   function reset() {
     roomState.value = null
@@ -89,6 +92,7 @@ export const useRoomStore = defineStore('room', () => {
     revote,
     next,
     kick,
+    makeHost,
     reset,
   }
 })

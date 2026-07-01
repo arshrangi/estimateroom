@@ -8,12 +8,12 @@ const props = defineProps<{
   participant: Participant
   isHost: boolean
   isYou: boolean
-  canKick: boolean
+  canManage: boolean
   revealed: boolean
   spread: Spread
 }>()
 
-defineEmits<{ kick: [] }>()
+defineEmits<{ kick: []; makeHost: [] }>()
 
 const descriptor = computed(() => {
   const parts: string[] = []
@@ -46,8 +46,16 @@ const descriptor = computed(() => {
     </div>
 
     <div class="flex items-center gap-3">
+      <button
+        v-if="canManage && !isHost"
+        type="button"
+        class="font-mono text-meta text-ink-muted hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        @click="$emit('makeHost')"
+      >
+        Make host
+      </button>
       <ConfirmButton
-        v-if="canKick"
+        v-if="canManage"
         compact
         destructive
         label="Remove"

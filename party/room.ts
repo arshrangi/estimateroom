@@ -21,6 +21,7 @@ interface ConnState {
 }
 
 const DEFAULT_IDLE_EXPIRY_MS = 30 * 60 * 1000
+const DEFAULT_HOST_GRACE_MS = 10 * 1000
 const PARTICIPANTS_KEY = 'participants'
 const HOST_KEY = 'hostId'
 const DECK_KEY = 'deck'
@@ -52,6 +53,15 @@ export class Room extends Server<Env> {
     else if (msg.type === 'reveal') await this.handleReveal(connection)
     else if (msg.type === 'revote' || msg.type === 'next') await this.handleRoundReset(connection)
     else if (msg.type === 'kick') await this.handleKick(connection, msg.participantId)
+    else if (msg.type === 'makeHost') await this.handleMakeHost(connection, msg.participantId)
+  }
+
+  async handleMakeHost(connection: Connection, participantId: string) {
+    if (!(await this.isHost(connection))) return
+    const registry = await this.getRegistry()
+    if (!registry[participantId]) return
+    await this.ctx.storage.put(HOST_KEY, participantId)
+    await this.broadcastState()
   }
 
   async handleJoin(connection: Connection, msg: JoinMessage) {
@@ -149,20 +159,43 @@ export class Room extends Server<Env> {
   async onClose(connection: Connection) {
     // A socket dropped: the participant stays in the registry but is now derived as disconnected.
     this.broadcast(encode({ type: 'state', state: await this.buildState(undefined, connection.id) }))
-    // If nobody is left connected, start the idle-expiry countdown.
-    if (this.connectedIds(connection.id).size === 0) {
+    const connected = this.connectedIds(connection.id)
+    const hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null
+    if (connected.size === 0) {
+      // Empty room: start the idle-expiry countdown.
       await this.ctx.storage.setAlarm(Date.now() + this.idleExpiryMs())
+    } else if (hostId && !connected.has(hostId)) {
+      // Host left but others remain: give a short grace for them to reconnect before we reassign.
+      await this.ctx.storage.setAlarm(Date.now() + this.hostGraceMs())
     }
   }
 
   async onAlarm() {
-    // Expire the room only if it is still empty; a reconnect would have cancelled this.
-    if (this.connectedIds().size === 0) await this.ctx.storage.deleteAll()
+    const connected = this.connectedIds()
+    if (connected.size === 0) {
+      await this.ctx.storage.deleteAll() // expired
+      return
+    }
+    const hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null
+    if (hostId && !connected.has(hostId)) await this.reassignHost(connected)
+  }
+
+  async reassignHost(connected: Set<string>) {
+    const ordered = Object.values(await this.getRegistry()) // insertion order = join order
+    const next = ordered.find((p) => p.role === 'voter' && connected.has(p.id)) ?? ordered.find((p) => connected.has(p.id))
+    if (!next) return
+    await this.ctx.storage.put(HOST_KEY, next.id)
+    await this.broadcastState()
   }
 
   idleExpiryMs(): number {
     const override = Number(this.env.IDLE_EXPIRY_MS)
     return Number.isFinite(override) && override > 0 ? override : DEFAULT_IDLE_EXPIRY_MS
+  }
+
+  hostGraceMs(): number {
+    const override = Number(this.env.HOST_GRACE_MS)
+    return Number.isFinite(override) && override > 0 ? override : DEFAULT_HOST_GRACE_MS
   }
 
   async reveal() {

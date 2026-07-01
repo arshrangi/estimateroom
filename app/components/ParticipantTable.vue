@@ -19,10 +19,11 @@ const viewerIsHost = computed(() => !!store.hostId && store.hostId === identity.
       :participant="p"
       :is-host="p.id === store.hostId"
       :is-you="p.id === identity.participantId"
-      :can-kick="viewerIsHost && p.id !== identity.participantId"
+      :can-manage="viewerIsHost && p.id !== identity.participantId"
       :revealed="store.revealed"
       :spread="spread"
       @kick="store.kick(p.id)"
+      @make-host="store.makeHost(p.id)"
     />
   </ul>
 </template>
