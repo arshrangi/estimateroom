@@ -2,6 +2,7 @@
 // ABOUTME: Single source of truth for message shapes; every inbound message is validated against these schemas.
 import { z } from 'zod'
 import { AVATAR_TINTS } from './avatars'
+import { MAX_CARD_LEN, MAX_DECK_CARDS } from './decks'
 import { ParticipantSchema, RoleSchema, RoomStateSchema } from './types'
 
 export { RoomStateSchema }
@@ -19,7 +20,14 @@ export const JoinMessageSchema = z.object({
 })
 export type JoinMessage = z.infer<typeof JoinMessageSchema>
 
-export const ClientMessageSchema = z.discriminatedUnion('type', [JoinMessageSchema])
+/** The host sets the room's deck (a preset's cards, or a custom set). */
+export const ChangeDeckMessageSchema = z.object({
+  type: z.literal('changeDeck'),
+  cards: z.array(z.string().min(1).max(MAX_CARD_LEN)).min(1).max(MAX_DECK_CARDS),
+})
+export type ChangeDeckMessage = z.infer<typeof ChangeDeckMessageSchema>
+
+export const ClientMessageSchema = z.discriminatedUnion('type', [JoinMessageSchema, ChangeDeckMessageSchema])
 export type ClientMessage = z.infer<typeof ClientMessageSchema>
 
 /* ── Server → client ─────────────────────────────────────────── */
@@ -41,9 +49,15 @@ export const ParticipantLeftSchema = z.object({
   participantId: z.string(),
 })
 
+export const DeckChangedSchema = z.object({
+  type: z.literal('deckChanged'),
+  deck: z.array(z.string()),
+})
+
 export const ServerMessageSchema = z.discriminatedUnion('type', [
   StateMessageSchema,
   ParticipantJoinedSchema,
   ParticipantLeftSchema,
+  DeckChangedSchema,
 ])
 export type ServerMessage = z.infer<typeof ServerMessageSchema>

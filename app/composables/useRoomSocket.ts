@@ -14,6 +14,8 @@ export function useRoomSocket(roomId: string) {
     const host = useRuntimeConfig().public.partyHost
     socket = new PartySocket({ host, party: 'room', room: roomId })
 
+    store.bindTransport((msg) => socket?.send(JSON.stringify(msg)))
+
     socket.addEventListener('open', () => {
       status.value = 'open'
       const join: ClientMessage = {
@@ -41,12 +43,14 @@ export function useRoomSocket(roomId: string) {
       if (msg.type === 'state') store.applyState(msg.state)
       else if (msg.type === 'participantJoined') store.applyJoined(msg.participant)
       else if (msg.type === 'participantLeft') store.applyLeft(msg.participantId)
+      else if (msg.type === 'deckChanged') store.applyDeckChanged(msg.deck)
     })
   }
 
   function disconnect() {
     socket?.close()
     socket = null
+    store.unbindTransport()
     store.reset()
   }
 
