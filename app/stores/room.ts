@@ -1,7 +1,7 @@
 // ABOUTME: Authoritative-replica room store. Applies server messages and dispatches client messages.
 // ABOUTME: It never originates truth; the socket transport is registered by useRoomSocket on connect.
 import { defineStore } from 'pinia'
-import type { ClientMessage, Participant, RoomState } from '~~/shared/protocol'
+import type { ClientMessage, Participant, RevealMode, RoomState } from '~~/shared/protocol'
 
 export const useRoomStore = defineStore('room', () => {
   const roomState = ref<RoomState | null>(null)
@@ -51,6 +51,12 @@ export const useRoomStore = defineStore('room', () => {
     myVote.value = null
     transport.value?.({ type: 'clearVote' })
   }
+  function setRevealMode(mode: RevealMode) {
+    transport.value?.({ type: 'setRevealMode', mode })
+  }
+  function reveal() {
+    transport.value?.({ type: 'reveal' })
+  }
 
   function reset() {
     roomState.value = null
@@ -60,6 +66,8 @@ export const useRoomStore = defineStore('room', () => {
   const participants = computed(() => roomState.value?.participants ?? [])
   const hostId = computed(() => roomState.value?.hostId ?? null)
   const deck = computed(() => roomState.value?.deck ?? null)
+  const revealed = computed(() => roomState.value?.revealed ?? false)
+  const revealMode = computed(() => roomState.value?.revealMode ?? 'host')
 
   return {
     roomState,
@@ -67,6 +75,8 @@ export const useRoomStore = defineStore('room', () => {
     participants,
     hostId,
     deck,
+    revealed,
+    revealMode,
     applyState,
     applyJoined,
     applyLeft,
@@ -77,6 +87,8 @@ export const useRoomStore = defineStore('room', () => {
     changeDeck,
     vote,
     clearVote,
+    setRevealMode,
+    reveal,
     reset,
   }
 })

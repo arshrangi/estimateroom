@@ -1,16 +1,26 @@
 <script setup lang="ts">
-// ABOUTME: One participant row: identity on the left, voted/waiting status on the right.
-// ABOUTME: The row's accessible label carries name, role, and vote status; the visual cell mirrors it.
+// ABOUTME: One participant row: identity on the left, voted/waiting status (or the revealed value) on the right.
+// ABOUTME: The row's accessible label carries name, role, and status/value; the visual cell mirrors it.
 import type { Participant } from '~~/shared/protocol'
+import type { Spread } from '~~/shared/spread'
 
-const props = defineProps<{ participant: Participant; isHost: boolean; isYou: boolean }>()
+const props = defineProps<{
+  participant: Participant
+  isHost: boolean
+  isYou: boolean
+  revealed: boolean
+  spread: Spread
+}>()
 
 const descriptor = computed(() => {
   const parts: string[] = []
   if (props.isHost) parts.push('host')
   parts.push(props.participant.role === 'observer' ? 'observer' : 'voter')
   if (props.isYou) parts.push('you')
-  if (props.participant.role !== 'observer') parts.push(props.participant.hasVoted ? 'voted' : 'waiting')
+  if (props.participant.role !== 'observer') {
+    if (props.revealed) parts.push(props.participant.vote === null ? 'abstained' : `voted ${props.participant.vote}`)
+    else parts.push(props.participant.hasVoted ? 'voted' : 'waiting')
+  }
   return parts.join(', ')
 })
 </script>
@@ -33,11 +43,14 @@ const descriptor = computed(() => {
     </div>
 
     <div aria-hidden="true" class="text-right font-mono text-meta">
-      <span v-if="participant.role === 'observer'" class="text-ink-muted">—</span>
-      <span v-else-if="participant.hasVoted" class="inline-flex items-center gap-1 text-ok">
-        <span>✓</span> voted
-      </span>
-      <span v-else class="text-ink-muted">waiting</span>
+      <VoteValue v-if="revealed && participant.role !== 'observer'" :value="participant.vote" :spread="spread" />
+      <template v-else>
+        <span v-if="participant.role === 'observer'" class="text-ink-muted">—</span>
+        <span v-else-if="participant.hasVoted" class="inline-flex items-center gap-1 text-ok">
+          <span>✓</span> voted
+        </span>
+        <span v-else class="text-ink-muted">waiting</span>
+      </template>
     </div>
   </li>
 </template>

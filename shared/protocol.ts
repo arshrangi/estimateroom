@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import { AVATAR_TINTS } from './avatars'
 import { MAX_CARD_LEN, MAX_DECK_CARDS } from './decks'
-import { ParticipantSchema, RoleSchema, RoomStateSchema } from './types'
+import { ParticipantSchema, RevealModeSchema, RoleSchema, RoomStateSchema } from './types'
 
 export { RoomStateSchema }
 export type { Participant, RevealMode, Role, RoomState } from './types'
@@ -37,11 +37,22 @@ export type VoteMessage = z.infer<typeof VoteMessageSchema>
 /** A voter clears their current selection. */
 export const ClearVoteMessageSchema = z.object({ type: z.literal('clearVote') })
 
+/** The host sets how the round reveals: on their click, or automatically once all voters have cast. */
+export const SetRevealModeMessageSchema = z.object({
+  type: z.literal('setRevealMode'),
+  mode: RevealModeSchema,
+})
+
+/** The host reveals all votes now. */
+export const RevealMessageSchema = z.object({ type: z.literal('reveal') })
+
 export const ClientMessageSchema = z.discriminatedUnion('type', [
   JoinMessageSchema,
   ChangeDeckMessageSchema,
   VoteMessageSchema,
   ClearVoteMessageSchema,
+  SetRevealModeMessageSchema,
+  RevealMessageSchema,
 ])
 export type ClientMessage = z.infer<typeof ClientMessageSchema>
 

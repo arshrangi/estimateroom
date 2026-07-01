@@ -1,7 +1,13 @@
 <script setup lang="ts">
 // ABOUTME: The participant list — the spine of the room. Exposed as a labelled list for screen readers.
+import { computeSpread } from '~~/shared/spread'
+
 const store = useRoomStore()
 const { identity } = useIdentity()
+
+const spread = computed(() =>
+  computeSpread(store.participants.filter((p) => p.role !== 'observer' && p.vote !== null).map((p) => p.vote as string)),
+)
 </script>
 
 <template>
@@ -12,6 +18,8 @@ const { identity } = useIdentity()
       :participant="p"
       :is-host="p.id === store.hostId"
       :is-you="p.id === identity.participantId"
+      :revealed="store.revealed"
+      :spread="spread"
     />
   </ul>
 </template>

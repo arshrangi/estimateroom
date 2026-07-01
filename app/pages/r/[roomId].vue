@@ -24,13 +24,17 @@ onBeforeUnmount(disconnect)
   <JoinCard v-if="!entered" @join="onJoin" />
   <section v-else class="mt-4">
     <p class="mb-2 font-mono text-meta text-ink-muted">Room {{ roomId }} — {{ status }}</p>
-    <VotingStatus class="mb-3" />
+    <VotingStatus v-if="!store.revealed" class="mb-3" />
+    <SpreadSummary v-else class="mb-3" />
     <ParticipantTable />
     <p v-if="store.participants.length <= 1" class="mt-3 text-body text-ink-soft">
       Share the link to get your team in.
     </p>
-    <div class="mt-4">
-      <DeckRow />
+    <div class="mt-4 flex flex-wrap items-start justify-between gap-4">
+      <DeckRow v-if="!store.revealed" />
+      <div class="ml-auto">
+        <HostControls />
+      </div>
     </div>
   </section>
 </template>
