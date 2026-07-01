@@ -8,7 +8,7 @@ const roomId = computed(() => String(route.params.roomId))
 
 const store = useRoomStore()
 const { identity, load } = useIdentity()
-const { status, error, connect, disconnect } = useRoomSocket(roomId.value)
+const { status, error, connect, disconnect, reconnect } = useRoomSocket(roomId.value)
 
 const entered = ref(false)
 
@@ -31,7 +31,7 @@ onBeforeUnmount(disconnect)
   <JoinCard v-else-if="!entered" @join="enter" />
 
   <div v-else class="mt-4 flex flex-col gap-3">
-    <ReconnectingIndicator :show="status === 'reconnecting'" />
+    <ReconnectingIndicator :show="status === 'reconnecting'" @retry="reconnect" />
 
     <VotingStatus v-if="!store.revealed" />
     <SpreadSummary v-else />

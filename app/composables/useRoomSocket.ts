@@ -1,5 +1,5 @@
 // ABOUTME: Manages the room WebSocket: connect, (re)announce join on every open, route messages to the store.
-// ABOUTME: partysocket auto-reconnects with backoff; on reconnect the DO replays state and our own vote is restored.
+// ABOUTME: partysocket auto-reconnects with backoff; we also retry immediately on demand and when the browser wakes.
 import { PartySocket } from 'partysocket'
 import type { ClientMessage, ErrorCode } from '~~/shared/protocol'
 import { ServerMessageSchema } from '~~/shared/protocol'
@@ -25,9 +25,32 @@ export function useRoomSocket(roomId: string) {
     socket?.send(JSON.stringify(join))
   }
 
+  // Skip the backoff wait and reopen now. No-op if the socket is healthy or we
+  // closed it on purpose (a refresh, or a fatal room error).
+  function reconnect() {
+    if (closing || !socket || status.value === 'open') return
+    status.value = 'reconnecting'
+    socket.reconnect()
+  }
+
+  // The tab regaining focus is a strong signal a stalled socket can reopen now.
+  function reconnectWhenVisible() {
+    if (document.visibilityState === 'visible') reconnect()
+  }
+
   function connect() {
     closing = false
-    socket = new PartySocket({ host: useRuntimeConfig().public.partyHost, party: 'room', room: roomId })
+    socket = new PartySocket({
+      host: useRuntimeConfig().public.partyHost,
+      party: 'room',
+      room: roomId,
+      // The default backoff waits 3s–10s between tries, long enough to look stuck.
+      // Tighten it so a dropped socket reopens within ~0.5s–4s.
+      minReconnectionDelay: 500,
+      maxReconnectionDelay: 4000,
+    })
+
+    store.bindTransport((msg) => socket?.send(JSON.stringify(msg)))
 
     socket.addEventListener('open', () => {
       status.value = 'open'
@@ -63,14 +86,24 @@ export function useRoomSocket(roomId: string) {
         socket?.close()
       }
     })
+
+    if (import.meta.client) {
+      window.addEventListener('online', reconnect)
+      document.addEventListener('visibilitychange', reconnectWhenVisible)
+    }
   }
 
   function disconnect() {
     closing = true
+    if (import.meta.client) {
+      window.removeEventListener('online', reconnect)
+      document.removeEventListener('visibilitychange', reconnectWhenVisible)
+    }
     socket?.close()
     socket = null
+    store.unbindTransport()
     store.reset()
   }
 
-  return { status, error, connect, disconnect }
+  return { status, error, connect, disconnect, reconnect }
 }
