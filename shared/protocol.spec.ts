@@ -1,7 +1,7 @@
 // ABOUTME: Tests for the shared client/server message protocol contract.
 // ABOUTME: Guards the single source of truth against drift; the state snapshot is the first message.
 import { describe, expect, it } from 'vitest'
-import { RoomStateSchema, ServerMessageSchema } from './protocol'
+import { ClientMessageSchema, RoomStateSchema, ServerMessageSchema } from './protocol'
 
 const validState = {
   roomId: 'V1StGXR8Z5jdHi6BmyT8sx',
@@ -46,5 +46,35 @@ describe('ServerMessageSchema', () => {
 
   it('rejects an unknown message type', () => {
     expect(() => ServerMessageSchema.parse({ type: 'nope' })).toThrow()
+  })
+
+  it('parses participantJoined and participantLeft', () => {
+    const p = { id: 'p1', name: 'Priya', avatar: 'teal', role: 'voter', connected: true, hasVoted: false, vote: null }
+    expect(ServerMessageSchema.parse({ type: 'participantJoined', participant: p })).toMatchObject({ type: 'participantJoined' })
+    expect(ServerMessageSchema.parse({ type: 'participantLeft', participantId: 'p1' })).toMatchObject({ type: 'participantLeft' })
+  })
+})
+
+describe('ClientMessageSchema (join)', () => {
+  const validJoin = { type: 'join', participantId: 'p1', name: 'Priya', avatar: 'teal', role: 'voter' }
+
+  it('parses a valid join', () => {
+    expect(ClientMessageSchema.parse(validJoin)).toEqual(validJoin)
+  })
+
+  it('accepts a null avatar and an observer role', () => {
+    expect(ClientMessageSchema.parse({ ...validJoin, avatar: null, role: 'observer' })).toMatchObject({ avatar: null, role: 'observer' })
+  })
+
+  it('rejects an empty name', () => {
+    expect(() => ClientMessageSchema.parse({ ...validJoin, name: '' })).toThrow()
+  })
+
+  it('rejects a name longer than 40 chars', () => {
+    expect(() => ClientMessageSchema.parse({ ...validJoin, name: 'x'.repeat(41) })).toThrow()
+  })
+
+  it('rejects an unknown avatar tint', () => {
+    expect(() => ClientMessageSchema.parse({ ...validJoin, avatar: 'gold' })).toThrow()
   })
 })

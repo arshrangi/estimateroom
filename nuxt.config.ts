@@ -7,7 +7,7 @@ const noFlashTheme = `(function(){try{var t=localStorage.getItem('pointr-theme')
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/eslint'],
+  modules: ['@nuxt/eslint', '@pinia/nuxt'],
   css: ['~/assets/css/main.css'],
   nitro: {
     preset: 'cloudflare_module',

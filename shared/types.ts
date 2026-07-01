@@ -1,6 +1,7 @@
 // ABOUTME: Domain entity schemas and types for a Pointr room (the authoritative state shape).
 // ABOUTME: Zod is the single source; TS types are inferred so client, server, and DO never drift.
 import { z } from 'zod'
+import { AVATAR_TINTS } from './avatars'
 
 export const RoleSchema = z.enum(['voter', 'observer'])
 export type Role = z.infer<typeof RoleSchema>
@@ -12,7 +13,7 @@ export type RevealMode = z.infer<typeof RevealModeSchema>
 export const ParticipantSchema = z.object({
   id: z.string(),
   name: z.string(),
-  avatar: z.string().nullable(),
+  avatar: z.enum(AVATAR_TINTS).nullable(),
   role: RoleSchema,
   connected: z.boolean(),
   /** Visible pre-reveal. The vote value itself stays null until reveal (secrecy invariant). */
