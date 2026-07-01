@@ -28,5 +28,8 @@ onBeforeUnmount(disconnect)
     <p v-if="store.participants.length <= 1" class="mt-3 text-body text-ink-soft">
       Share the link to get your team in.
     </p>
+    <div class="mt-4">
+      <DeckRow />
+    </div>
   </section>
 </template>

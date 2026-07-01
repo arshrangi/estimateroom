@@ -6,6 +6,8 @@ import type { ClientMessage, Participant, RoomState } from '~~/shared/protocol'
 export const useRoomStore = defineStore('room', () => {
   const roomState = ref<RoomState | null>(null)
   const transport = shallowRef<((msg: ClientMessage) => void) | null>(null)
+  // The local participant's own selection (optimistic; the server never echoes vote values pre-reveal).
+  const myVote = ref<string | null>(null)
 
   /* ── inbound: apply server truth ── */
   function applyState(state: RoomState) {
@@ -26,6 +28,10 @@ export const useRoomStore = defineStore('room', () => {
   function applyDeckChanged(deck: string[]) {
     if (roomState.value) roomState.value.deck = deck
   }
+  function applyVoteStatus(participantId: string, hasVoted: boolean) {
+    const participant = roomState.value?.participants.find((p) => p.id === participantId)
+    if (participant) participant.hasVoted = hasVoted
+  }
 
   /* ── outbound: dispatch client messages ── */
   function bindTransport(send: (msg: ClientMessage) => void) {
@@ -37,9 +43,18 @@ export const useRoomStore = defineStore('room', () => {
   function changeDeck(cards: string[]) {
     transport.value?.({ type: 'changeDeck', cards })
   }
+  function vote(card: string) {
+    myVote.value = card
+    transport.value?.({ type: 'vote', card })
+  }
+  function clearVote() {
+    myVote.value = null
+    transport.value?.({ type: 'clearVote' })
+  }
 
   function reset() {
     roomState.value = null
+    myVote.value = null
   }
 
   const participants = computed(() => roomState.value?.participants ?? [])
@@ -48,6 +63,7 @@ export const useRoomStore = defineStore('room', () => {
 
   return {
     roomState,
+    myVote,
     participants,
     hostId,
     deck,
@@ -55,9 +71,12 @@ export const useRoomStore = defineStore('room', () => {
     applyJoined,
     applyLeft,
     applyDeckChanged,
+    applyVoteStatus,
     bindTransport,
     unbindTransport,
     changeDeck,
+    vote,
+    clearVote,
     reset,
   }
 })

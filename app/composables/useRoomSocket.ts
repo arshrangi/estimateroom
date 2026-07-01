@@ -44,6 +44,7 @@ export function useRoomSocket(roomId: string) {
       else if (msg.type === 'participantJoined') store.applyJoined(msg.participant)
       else if (msg.type === 'participantLeft') store.applyLeft(msg.participantId)
       else if (msg.type === 'deckChanged') store.applyDeckChanged(msg.deck)
+      else if (msg.type === 'voteStatusChanged') store.applyVoteStatus(msg.participantId, msg.hasVoted)
     })
   }
 
