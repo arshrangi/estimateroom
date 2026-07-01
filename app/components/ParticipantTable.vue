@@ -8,6 +8,7 @@ const { identity } = useIdentity()
 const spread = computed(() =>
   computeSpread(store.participants.filter((p) => p.role !== 'observer' && p.vote !== null).map((p) => p.vote as string)),
 )
+const viewerIsHost = computed(() => !!store.hostId && store.hostId === identity.value.participantId)
 </script>
 
 <template>
@@ -18,8 +19,10 @@ const spread = computed(() =>
       :participant="p"
       :is-host="p.id === store.hostId"
       :is-you="p.id === identity.participantId"
+      :can-kick="viewerIsHost && p.id !== identity.participantId"
       :revealed="store.revealed"
       :spread="spread"
+      @kick="store.kick(p.id)"
     />
   </ul>
 </template>

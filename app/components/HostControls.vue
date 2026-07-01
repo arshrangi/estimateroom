@@ -40,15 +40,14 @@ const modes: { value: RevealMode; label: string }[] = [
       </button>
     </template>
 
-    <!-- Equal-weight peers: same style, same size, neither demoted. -->
+    <!-- Equal-weight peers: same style, same size, neither demoted. Vote again confirms (it clears votes); Next does not. -->
     <template v-else>
-      <button
-        type="button"
-        class="h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        @click="store.revote()"
-      >
-        Vote again
-      </button>
+      <ConfirmButton
+        label="Vote again"
+        message="Clear everyone's votes and re-vote this item?"
+        confirm-label="Clear & re-vote"
+        @confirm="store.revote()"
+      />
       <button
         type="button"
         class="h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"

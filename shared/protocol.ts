@@ -52,6 +52,9 @@ export const RevoteMessageSchema = z.object({ type: z.literal('revote') })
 /** The host starts a fresh round for the next item. */
 export const NextMessageSchema = z.object({ type: z.literal('next') })
 
+/** The host removes a participant from the room. */
+export const KickMessageSchema = z.object({ type: z.literal('kick'), participantId: z.string() })
+
 export const ClientMessageSchema = z.discriminatedUnion('type', [
   JoinMessageSchema,
   ChangeDeckMessageSchema,
@@ -61,6 +64,7 @@ export const ClientMessageSchema = z.discriminatedUnion('type', [
   RevealMessageSchema,
   RevoteMessageSchema,
   NextMessageSchema,
+  KickMessageSchema,
 ])
 export type ClientMessage = z.infer<typeof ClientMessageSchema>
 
@@ -83,11 +87,6 @@ export const ParticipantLeftSchema = z.object({
   participantId: z.string(),
 })
 
-export const DeckChangedSchema = z.object({
-  type: z.literal('deckChanged'),
-  deck: z.array(z.string()),
-})
-
 /** Pre-reveal vote status. Carries only whether the participant has voted, never the value. */
 export const VoteStatusChangedSchema = z.object({
   type: z.literal('voteStatusChanged'),
@@ -99,7 +98,6 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
   StateMessageSchema,
   ParticipantJoinedSchema,
   ParticipantLeftSchema,
-  DeckChangedSchema,
   VoteStatusChangedSchema,
 ])
 export type ServerMessage = z.infer<typeof ServerMessageSchema>

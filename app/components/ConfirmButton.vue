@@ -1,0 +1,75 @@
+<script setup lang="ts">
+// ABOUTME: A trigger that expands inline into a "message + Confirm/Cancel" affordance (never a blocking modal).
+// ABOUTME: Focus moves to Confirm on open and returns to the trigger on confirm/cancel; Escape cancels.
+const props = withDefaults(
+  defineProps<{
+    label: string
+    message: string
+    confirmLabel?: string
+    destructive?: boolean
+    compact?: boolean
+  }>(),
+  { confirmLabel: 'Confirm', destructive: false, compact: false },
+)
+
+const emit = defineEmits<{ confirm: [] }>()
+
+const open = ref(false)
+const triggerRef = ref<HTMLButtonElement | null>(null)
+const confirmRef = ref<HTMLButtonElement | null>(null)
+
+function openConfirm() {
+  open.value = true
+  nextTick(() => confirmRef.value?.focus())
+}
+function cancel() {
+  open.value = false
+  nextTick(() => triggerRef.value?.focus())
+}
+function confirm() {
+  open.value = false
+  emit('confirm')
+  nextTick(() => triggerRef.value?.focus())
+}
+
+const triggerClass = computed(() =>
+  props.compact
+    ? 'font-mono text-meta text-ink-muted hover:text-outlier'
+    : 'h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink',
+)
+</script>
+
+<template>
+  <span class="inline-flex" @keydown.escape="open && cancel()">
+    <button
+      v-if="!open"
+      ref="triggerRef"
+      type="button"
+      class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      :class="triggerClass"
+      @click="openConfirm"
+    >
+      {{ label }}
+    </button>
+
+    <span v-else class="inline-flex items-center gap-2 rounded-sm border border-line bg-surface px-2 py-1">
+      <span class="font-mono text-meta text-ink-soft">{{ message }}</span>
+      <button
+        ref="confirmRef"
+        type="button"
+        class="rounded-sm px-2 py-1 font-mono text-meta font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        :class="destructive ? 'bg-outlier-bg text-outlier' : 'bg-accent text-accent-fg'"
+        @click="confirm"
+      >
+        {{ confirmLabel }}
+      </button>
+      <button
+        type="button"
+        class="rounded-sm px-2 py-1 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        @click="cancel"
+      >
+        Cancel
+      </button>
+    </span>
+  </span>
+</template>

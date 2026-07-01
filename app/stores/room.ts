@@ -27,9 +27,6 @@ export const useRoomStore = defineStore('room', () => {
     if (!state) return
     state.participants = state.participants.filter((p) => p.id !== participantId)
   }
-  function applyDeckChanged(deck: string[]) {
-    if (roomState.value) roomState.value.deck = deck
-  }
   function applyVoteStatus(participantId: string, hasVoted: boolean) {
     const participant = roomState.value?.participants.find((p) => p.id === participantId)
     if (participant) participant.hasVoted = hasVoted
@@ -65,6 +62,9 @@ export const useRoomStore = defineStore('room', () => {
   function next() {
     transport.value?.({ type: 'next' })
   }
+  function kick(participantId: string) {
+    transport.value?.({ type: 'kick', participantId })
+  }
 
   function reset() {
     roomState.value = null
@@ -88,7 +88,6 @@ export const useRoomStore = defineStore('room', () => {
     applyState,
     applyJoined,
     applyLeft,
-    applyDeckChanged,
     applyVoteStatus,
     bindTransport,
     unbindTransport,
@@ -99,6 +98,7 @@ export const useRoomStore = defineStore('room', () => {
     reveal,
     revote,
     next,
+    kick,
     reset,
   }
 })

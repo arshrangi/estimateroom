@@ -8,9 +8,12 @@ const props = defineProps<{
   participant: Participant
   isHost: boolean
   isYou: boolean
+  canKick: boolean
   revealed: boolean
   spread: Spread
 }>()
+
+defineEmits<{ kick: [] }>()
 
 const descriptor = computed(() => {
   const parts: string[] = []
@@ -42,15 +45,26 @@ const descriptor = computed(() => {
       <span v-if="participant.role === 'observer'" class="font-mono text-meta text-ink-muted">observer</span>
     </div>
 
-    <div aria-hidden="true" class="text-right font-mono text-meta">
-      <VoteValue v-if="revealed && participant.role !== 'observer'" :value="participant.vote" :spread="spread" />
-      <template v-else>
-        <span v-if="participant.role === 'observer'" class="text-ink-muted">—</span>
-        <span v-else-if="participant.hasVoted" class="inline-flex items-center gap-1 text-ok">
-          <span>✓</span> voted
-        </span>
-        <span v-else class="text-ink-muted">waiting</span>
-      </template>
+    <div class="flex items-center gap-3">
+      <ConfirmButton
+        v-if="canKick"
+        compact
+        destructive
+        label="Remove"
+        :message="`Remove ${participant.name}?`"
+        confirm-label="Remove"
+        @confirm="$emit('kick')"
+      />
+      <div aria-hidden="true" class="text-right font-mono text-meta">
+        <VoteValue v-if="revealed && participant.role !== 'observer'" :value="participant.vote" :spread="spread" />
+        <template v-else>
+          <span v-if="participant.role === 'observer'" class="text-ink-muted">—</span>
+          <span v-else-if="participant.hasVoted" class="inline-flex items-center gap-1 text-ok">
+            <span>✓</span> voted
+          </span>
+          <span v-else class="text-ink-muted">waiting</span>
+        </template>
+      </div>
     </div>
   </li>
 </template>
