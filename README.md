@@ -1,4 +1,4 @@
-# Pointr
+# EstimateRoom
 
 Ad-free, account-free, open-source planning poker for agile teams. Open a room, paste the link, estimate.
 
@@ -11,7 +11,7 @@ Ad-free, account-free, open-source planning poker for agile teams. Open a room, 
 
 ## Architecture at a glance
 
-Pointr is **two Cloudflare Workers in one repo**:
+EstimateRoom is **two Cloudflare Workers in one repo**:
 
 - **The Nuxt app** (repo root) — the UI and `POST /api/rooms`, built with the Nitro `cloudflare_module` preset.
 - **The party Worker** (`party/`) — the realtime layer built on [partyserver](https://github.com/cloudflare/partykit/tree/main/packages/partyserver): **one Durable Object per room** acting as the authoritative WebSocket server at `/parties/room/:roomId`. Live state lives in the DO; a snapshot persists to its built-in SQLite so a room survives restarts and brief disconnects.
@@ -46,7 +46,7 @@ CI runs lint, typecheck (both Workers), unit tests, the bundle-size budget, and 
 
 ## Deploy / self-host
 
-Pointr is designed to **fork and deploy to your own free Cloudflare account**. Both Workers run comfortably on the free tier (Durable Objects included).
+EstimateRoom is designed to **fork and deploy to your own free Cloudflare account**. Both Workers run comfortably on the free tier (Durable Objects included).
 
 1. **Install Wrangler and log in.**
 
@@ -55,17 +55,17 @@ Pointr is designed to **fork and deploy to your own free Cloudflare account**. B
    pnpm exec wrangler login
    ```
 
-2. **Deploy the party Worker** (the realtime Durable Object). Note the deployed host it prints (e.g. `pointr-party.<your-subdomain>.workers.dev`).
+2. **Deploy the party Worker** (the realtime Durable Object). Note the deployed host it prints (e.g. `estimateroom-party.<your-subdomain>.workers.dev`).
 
    ```bash
    pnpm exec wrangler deploy --config party/wrangler.jsonc
    ```
 
-3. **Tell the app where the party Worker lives.** Set `NUXT_PUBLIC_PARTY_HOST` on the `pointr` Worker to that host (no protocol, host[:port] only). Either add it as a var/secret:
+3. **Tell the app where the party Worker lives.** Set `NUXT_PUBLIC_PARTY_HOST` on the `estimateroom` Worker to that host (no protocol, host[:port] only). Either add it as a var/secret:
 
    ```bash
    pnpm exec wrangler secret put NUXT_PUBLIC_PARTY_HOST
-   # value: pointr-party.<your-subdomain>.workers.dev
+   # value: estimateroom-party.<your-subdomain>.workers.dev
    ```
 
    …or add a `vars` entry to `wrangler.jsonc`. See `.env.example` for the local default. The browser opens `wss://<that host>/parties/room/:roomId`.
@@ -94,7 +94,7 @@ The hosted instance runs the same two-Worker setup.
 
 ## Support
 
-Pointr is free and stays ad-free, funded by voluntary sponsorship — never ads or a paywall. If it saves your team time, consider [sponsoring the project](https://github.com/sponsors/arshdeeprangi) (see `.github/FUNDING.yml`).
+EstimateRoom is free and stays ad-free, funded by voluntary sponsorship — never ads or a paywall. If it saves your team time, consider [sponsoring the project](https://github.com/sponsors/arshdeeprangi) (see `.github/FUNDING.yml`).
 
 ## Contributing
 

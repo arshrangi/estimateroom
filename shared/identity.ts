@@ -2,7 +2,7 @@
 // ABOUTME: No accounts, no server PII: identity is a client-generated id plus a self-chosen name/avatar.
 import { isAvatarTint, type AvatarTint } from './avatars'
 
-export const IDENTITY_STORAGE_KEY = 'pointr-identity'
+export const IDENTITY_STORAGE_KEY = 'estimateroom-identity'
 
 export interface Identity {
   participantId: string

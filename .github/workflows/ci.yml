@@ -46,7 +46,7 @@ jobs:
   # Deploy both Workers on merge to main. Requires repo secrets:
   #   CLOUDFLARE_API_TOKEN   — token with Workers Scripts + Durable Objects edit rights
   #   CLOUDFLARE_ACCOUNT_ID  — the target Cloudflare account id
-  # The Nuxt Worker reads NUXT_PUBLIC_PARTY_HOST at runtime; set it on the `pointr`
+  # The Nuxt Worker reads NUXT_PUBLIC_PARTY_HOST at runtime; set it on the `estimateroom`
   # Worker (dashboard var or `wrangler secret`) to the deployed party Worker's host.
   deploy:
     needs: check

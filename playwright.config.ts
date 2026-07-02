@@ -1,4 +1,4 @@
-// ABOUTME: Playwright config for Pointr's multi-client end-to-end tests.
+// ABOUTME: Playwright config for EstimateRoom's multi-client end-to-end tests.
 // ABOUTME: Boots both Workers via `dev:all` and drives the app at http://localhost:3000.
 import { defineConfig, devices } from '@playwright/test'
 

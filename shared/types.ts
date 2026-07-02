@@ -1,4 +1,4 @@
-// ABOUTME: Domain entity schemas and types for a Pointr room (the authoritative state shape).
+// ABOUTME: Domain entity schemas and types for a EstimateRoom room (the authoritative state shape).
 // ABOUTME: Zod is the single source; TS types are inferred so client, server, and DO never drift.
 import { z } from 'zod'
 import { AVATAR_TINTS } from './avatars'

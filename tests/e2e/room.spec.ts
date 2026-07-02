@@ -1,4 +1,4 @@
-// ABOUTME: Multi-client end-to-end coverage of Pointr's critical real-time journeys.
+// ABOUTME: Multi-client end-to-end coverage of EstimateRoom's critical real-time journeys.
 // ABOUTME: create-and-join, a full voting round (hidden cast, reveal, spread, re-vote), and refresh-proof reconnect.
 import { test, expect, type Browser, type Page } from '@playwright/test'
 

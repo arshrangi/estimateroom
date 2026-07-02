@@ -1,4 +1,4 @@
-// ABOUTME: Vitest configuration for Pointr unit tests.
+// ABOUTME: Vitest configuration for EstimateRoom unit tests.
 // ABOUTME: Runs co-located *.spec.ts across shared, server, and app, plus tests/unit.
 import { defineConfig } from 'vitest/config'
 
