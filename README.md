@@ -48,6 +48,8 @@ CI runs lint, typecheck (both Workers), unit tests, the bundle-size budget, and 
 
 EstimateRoom is designed to **fork and deploy to your own free Cloudflare account**. Both Workers run comfortably on the free tier (Durable Objects included).
 
+Deploy order matters: the party Worker must exist first, because the app Worker needs its host baked into `NUXT_PUBLIC_PARTY_HOST` — with that unset, the app deploys fine but every room silently fails to connect.
+
 1. **Install Wrangler and log in.**
 
    ```bash
@@ -55,20 +57,19 @@ EstimateRoom is designed to **fork and deploy to your own free Cloudflare accoun
    pnpm exec wrangler login
    ```
 
-2. **Deploy the party Worker** (the realtime Durable Object). Note the deployed host it prints (e.g. `estimateroom-party.<your-subdomain>.workers.dev`).
+2. **Deploy the party Worker** (the realtime Durable Object). If this account has never deployed a Worker, Wrangler asks you to pick a `workers.dev` subdomain first. Note the deployed host it prints (e.g. `estimateroom-party.<your-subdomain>.workers.dev`).
 
    ```bash
    pnpm exec wrangler deploy --config party/wrangler.jsonc
    ```
 
-3. **Tell the app where the party Worker lives.** Set `NUXT_PUBLIC_PARTY_HOST` on the `estimateroom` Worker to that host (no protocol, host[:port] only). Either add it as a var/secret:
+3. **Tell the app where the party Worker lives.** Set `NUXT_PUBLIC_PARTY_HOST` on the `estimateroom` Worker to that host (no protocol, host[:port] only):
 
    ```bash
-   pnpm exec wrangler secret put NUXT_PUBLIC_PARTY_HOST
-   # value: estimateroom-party.<your-subdomain>.workers.dev
+   echo "estimateroom-party.<your-subdomain>.workers.dev" | pnpm exec wrangler secret put NUXT_PUBLIC_PARTY_HOST
    ```
 
-   …or add a `vars` entry to `wrangler.jsonc`. See `.env.example` for the local default. The browser opens `wss://<that host>/parties/room/:roomId`.
+   Wrangler will offer to create the `estimateroom` Worker as a draft since it doesn't exist yet — say yes. Use a secret (or a `vars` entry in `wrangler.jsonc`), not a dashboard variable: dashboard variables are wiped by the next `wrangler deploy`, secrets persist. See `.env.example` for the local default. The browser opens `wss://<that host>/parties/room/:roomId`.
 
 4. **Build and deploy the app Worker.**
 
@@ -77,12 +78,23 @@ EstimateRoom is designed to **fork and deploy to your own free Cloudflare accoun
    pnpm exec wrangler deploy
    ```
 
-### Continuous deployment
+5. **Verify.** Open `https://estimateroom.<your-subdomain>.workers.dev`, create a room, join it from a second tab, vote, and reveal. That one pass exercises SSR, static assets, the room API, the WebSocket, and the Durable Object. The first requests right after a deploy can return Cloudflare 404/1042 errors while the `workers.dev` route propagates — it clears within seconds.
 
-`.github/workflows/ci.yml` deploys both Workers automatically on merge to `main`. Add two repository secrets:
+### Redeploying
 
-- `CLOUDFLARE_API_TOKEN` — a token with Workers Scripts + Durable Objects edit permissions.
-- `CLOUDFLARE_ACCOUNT_ID` — your Cloudflare account id.
+Deploys are manual. After changing app code (`app/`, `server/`, `shared/`):
+
+```bash
+pnpm build && pnpm exec wrangler deploy
+```
+
+After changing the realtime layer (`party/`, `shared/`):
+
+```bash
+pnpm exec wrangler deploy --config party/wrangler.jsonc
+```
+
+`shared/` is imported by both Workers, so a contract change means redeploying both. `NUXT_PUBLIC_PARTY_HOST` is already stored as a secret and survives redeploys — you only set it again if the party Worker's host changes.
 
 The hosted instance runs the same two-Worker setup.
 
