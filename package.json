@@ -17,6 +17,7 @@
     "test:e2e": "playwright test",
     "dev:party": "wrangler dev --config party/wrangler.jsonc --port 8787",
     "check:bundle": "node scripts/check-bundle-size.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
