@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// ABOUTME: The room surface. Returning members auto-enter (no Join screen on refresh); new members use the JoinCard.
-// ABOUTME: Shows the live session as one dense stack, plus a transient reconnecting banner.
+// ABOUTME: The room surface. New members and the room's creator (who picks the deck) use the JoinCard;
+// ABOUTME: other returning members auto-enter. Shows the live session plus a transient reconnecting banner.
 import { hasProfile } from '~~/shared/identity'
 
 const route = useRoute()
@@ -13,28 +13,34 @@ const { status, error, connect, disconnect, reconnect } = useRoomSocket(roomId.v
 const entered = ref(false)
 
 const deckMemory = useDeckMemory()
+// Setup-time so the JoinCard sees the prop before its own mount; false during SSR,
+// and harmless there because the card renders nothing until client-side ready.
+const isCreator = ref(deckMemory.isCreatorOf(roomId.value))
+const chosenDeck = ref<string[] | null>(null)
 
-// Seed a just-created room: the creator arrives holding a one-shot pending deck.
-// Guarded three ways (host, still deckless, stash present) so a refresh or a guest never triggers it.
+// Seed a just-created room with the deck chosen on the Join card, once the state
+// snapshot confirms we are host of a still-deckless room. Guests never carry a deck.
 watch(
   () => store.roomState,
   (state) => {
-    if (!state || state.deck !== null) return
+    if (!state || state.deck !== null || !chosenDeck.value) return
     if (state.hostId !== identity.value.participantId) return
-    const pending = deckMemory.takePendingDeck()
-    if (pending) store.changeDeck(pending)
+    store.changeDeck(chosenDeck.value)
+    deckMemory.clearCreated()
   },
 )
 
-function enter() {
+function enter(deck?: string[]) {
+  if (deck) chosenDeck.value = deck
   entered.value = true
   connect()
 }
 
 onMounted(() => {
   load()
-  // A remembered participant is never dropped to the Join screen; they re-enter directly.
-  if (hasProfile(identity.value)) enter()
+  // A remembered participant is never dropped to the Join screen, except the creator,
+  // who stops at the Join card once to pick the room's deck.
+  if (hasProfile(identity.value) && !isCreator.value) enter()
 })
 
 onBeforeUnmount(disconnect)
@@ -42,7 +48,7 @@ onBeforeUnmount(disconnect)
 
 <template>
   <ErrorSurface v-if="error" :code="error" />
-  <JoinCard v-else-if="!entered" @join="enter" />
+  <JoinCard v-else-if="!entered" :show-deck="isCreator" @join="enter" />
 
   <div v-else class="mt-4 flex flex-col gap-3">
     <ReconnectingIndicator :show="status === 'reconnecting'" @retry="reconnect" />

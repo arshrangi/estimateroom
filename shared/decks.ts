@@ -22,7 +22,7 @@ export function getDeckPreset(id: string): Deck | undefined {
 }
 
 export const DECK_STORAGE_KEY = 'estimateroom-deck'
-export const PENDING_DECK_KEY = 'estimateroom-pending-deck'
+export const CREATED_ROOM_KEY = 'estimateroom-created-room'
 
 /** Validates a JSON-parsed stored deck: an array of non-empty short strings within the card cap, else null. */
 export function normalizeStoredDeck(raw: unknown): string[] | null {

@@ -1,12 +1,16 @@
 <script setup lang="ts">
 // ABOUTME: The join surface: capture a name/avatar/observer choice, or one-tap confirm a remembered profile.
-// ABOUTME: Identity is browser-remembered; no signup, no server PII. Emits `join` once entered.
+// ABOUTME: The room's creator also picks the deck here (remembered per browser). Emits `join` once entered.
 import { AVATAR_TINTS, type AvatarTint } from '~~/shared/avatars'
+import { DECK_PRESETS } from '~~/shared/decks'
 import { hasProfile } from '~~/shared/identity'
 
-const emit = defineEmits<{ join: [] }>()
+const props = defineProps<{ showDeck?: boolean }>()
+const emit = defineEmits<{ join: [deck?: string[]] }>()
 
 const { identity, load, save } = useIdentity()
+const deckMemory = useDeckMemory()
+const chosenDeck = ref<string[] | null>(null)
 
 const name = ref('')
 const avatar = ref<AvatarTint | null>(null)
@@ -24,9 +28,20 @@ onMounted(() => {
   name.value = identity.value.name
   avatar.value = identity.value.avatar
   observer.value = identity.value.observer
+  if (props.showDeck) {
+    deckMemory.load()
+    chosenDeck.value = deckMemory.lastDeck.value ?? DECK_PRESETS[0]!.cards
+  }
   ready.value = true
   if (!hasProfile(identity.value)) focusName()
 })
+
+// The deck the join carries: the creator's choice, saved as the new remembered deck.
+function commitDeck(): string[] | undefined {
+  if (!props.showDeck || !chosenDeck.value) return undefined
+  deckMemory.save(chosenDeck.value)
+  return chosenDeck.value
+}
 
 function focusName() {
   nextTick(() => nameInput.value?.focus())
@@ -45,7 +60,7 @@ function submit() {
     return
   }
   save({ name: trimmed, avatar: avatar.value, observer: observer.value })
-  emit('join')
+  emit('join', commitDeck())
 }
 
 function pickTint(t: AvatarTint) {
@@ -71,10 +86,17 @@ const tintClass: Record<AvatarTint, string> = {
           <span class="text-body font-semibold text-ink">{{ identity.name }}</span>
           <span v-if="identity.observer" class="font-mono text-meta text-ink-muted">observer</span>
         </div>
+        <div v-if="showDeck" class="mt-4">
+          <span class="font-mono text-meta text-ink-soft">Deck</span>
+          <div class="mt-2 rounded-sm border border-line bg-bg p-2">
+            <DeckPicker :selected="chosenDeck" @pick="(cards) => (chosenDeck = cards)" />
+          </div>
+        </div>
+
         <button
           type="button"
           class="mt-5 h-[38px] w-full rounded-sm bg-accent px-4 font-semibold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          @click="emit('join')"
+          @click="emit('join', commitDeck())"
         >
           Continue as {{ identity.name }}
         </button>
@@ -124,6 +146,13 @@ const tintClass: Record<AvatarTint, string> = {
           <input v-model="observer" type="checkbox" class="size-4 accent-[var(--color-accent)]">
           <span class="text-body text-ink-soft">Join as observer (watch, don't vote)</span>
         </label>
+
+        <div v-if="showDeck" class="mt-4">
+          <span class="font-mono text-meta text-ink-soft">Deck</span>
+          <div class="mt-2 rounded-sm border border-line bg-bg p-2">
+            <DeckPicker :selected="chosenDeck" @pick="(cards) => (chosenDeck = cards)" />
+          </div>
+        </div>
 
         <button
           type="submit"

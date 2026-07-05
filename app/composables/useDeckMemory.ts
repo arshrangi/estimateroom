@@ -1,6 +1,6 @@
-// ABOUTME: Remembers the last deck the user applied (localStorage) and carries the one-shot
-// ABOUTME: pending deck from room creation to the room page (sessionStorage, consumed on read).
-import { DECK_STORAGE_KEY, PENDING_DECK_KEY, normalizeStoredDeck } from '~~/shared/decks'
+// ABOUTME: Remembers the last deck the user applied (localStorage) and the created-room marker
+// ABOUTME: that tells the room page to offer the deck step to the creator (sessionStorage).
+import { CREATED_ROOM_KEY, DECK_STORAGE_KEY, normalizeStoredDeck } from '~~/shared/decks'
 
 export function useDeckMemory() {
   const lastDeck = useState<string[] | null>('deck-memory', () => null)
@@ -21,21 +21,17 @@ export function useDeckMemory() {
     if (import.meta.client) localStorage.setItem(DECK_STORAGE_KEY, JSON.stringify(cards))
   }
 
-  function stashPendingDeck(cards: string[]) {
-    if (import.meta.client) sessionStorage.setItem(PENDING_DECK_KEY, JSON.stringify(cards))
+  function markCreated(roomId: string) {
+    if (import.meta.client) sessionStorage.setItem(CREATED_ROOM_KEY, roomId)
   }
 
-  function takePendingDeck(): string[] | null {
-    if (!import.meta.client) return null
-    let raw: unknown
-    try {
-      raw = JSON.parse(sessionStorage.getItem(PENDING_DECK_KEY) ?? 'null')
-    } catch {
-      raw = null
-    }
-    sessionStorage.removeItem(PENDING_DECK_KEY)
-    return normalizeStoredDeck(raw)
+  function isCreatorOf(roomId: string): boolean {
+    return import.meta.client && sessionStorage.getItem(CREATED_ROOM_KEY) === roomId
   }
 
-  return { lastDeck, load, save, stashPendingDeck, takePendingDeck }
+  function clearCreated() {
+    if (import.meta.client) sessionStorage.removeItem(CREATED_ROOM_KEY)
+  }
+
+  return { lastDeck, load, save, markCreated, isCreatorOf, clearCreated }
 }

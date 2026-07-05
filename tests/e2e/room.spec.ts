@@ -18,12 +18,10 @@ async function waitForHydration(page: Page): Promise<void> {
   await page.waitForFunction(() => !!(document.querySelector('#__nuxt') as unknown as { __vue_app__?: unknown })?.__vue_app__)
 }
 
-async function createRoom(page: Page, deck?: string): Promise<string> {
+async function createRoom(page: Page): Promise<string> {
   await page.goto('/')
   await waitForHydration(page)
-  await page.getByRole('button', { name: 'Create a room', exact: true }).click()
-  if (deck) await page.getByRole('button', { name: new RegExp('^' + deck) }).click()
-  await page.getByRole('button', { name: 'Create room', exact: true }).click()
+  await page.getByRole('button', { name: 'Create a room' }).click()
   await page.waitForURL(/\/r\/.+/)
   return page.url()
 }
@@ -193,20 +191,21 @@ test('attendee leaves via logo: no confirm, straight home, roster removal', asyn
   await guest.context().close()
 })
 
-test('deck chosen at creation seeds the room and is remembered', async ({ browser }) => {
+test('deck chosen on the join card seeds the room and is remembered', async ({ browser }) => {
   const host = await newClient(browser)
 
-  await createRoom(host, 'T-shirt')
+  await createRoom(host)
+  // The creator's Join card includes the deck chooser; pick a non-default preset.
+  await host.getByRole('button', { name: /^T-shirt/ }).click()
   await join(host, 'Alice')
 
   // The room starts with the chosen deck; there is no waiting-for-deck state.
   await expect(host.getByText('Waiting for the host to pick a deck.')).toHaveCount(0)
   await expect(hand(host).getByRole('button', { name: 'M', exact: true })).toBeVisible()
 
-  // Back on the landing page, the remembered deck is preselected in the reopened panel.
-  await host.goto('/')
-  await waitForHydration(host)
-  await host.getByRole('button', { name: 'Create a room', exact: true }).click()
+  // A second created room stops the returning creator at the Join card, deck remembered.
+  await createRoom(host)
+  await expect(host.getByRole('button', { name: 'Continue as Alice' })).toBeVisible()
   await expect(host.getByRole('button', { name: /^T-shirt/ })).toHaveAttribute('aria-pressed', 'true')
 
   await host.context().close()
