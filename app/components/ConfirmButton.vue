@@ -3,14 +3,16 @@
 // ABOUTME: Focus moves to Confirm on open and returns to the trigger on confirm/cancel; Escape cancels.
 const props = withDefaults(
   defineProps<{
-    label: string
+    label?: string
     message: string
     confirmLabel?: string
     destructive?: boolean
     compact?: boolean
   }>(),
-  { confirmLabel: 'Confirm', destructive: false, compact: false },
+  { label: '', confirmLabel: 'Confirm', destructive: false, compact: false },
 )
+
+const slots = useSlots()
 
 const emit = defineEmits<{ confirm: [] }>()
 
@@ -32,11 +34,12 @@ function confirm() {
   nextTick(() => triggerRef.value?.focus())
 }
 
-const triggerClass = computed(() =>
-  props.compact
+const triggerClass = computed(() => {
+  if (slots.trigger) return 'rounded-sm'
+  return props.compact
     ? 'font-mono text-meta text-ink-muted hover:text-outlier'
-    : 'h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink',
-)
+    : 'h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink'
+})
 </script>
 
 <template>
@@ -49,7 +52,7 @@ const triggerClass = computed(() =>
       :class="triggerClass"
       @click="openConfirm"
     >
-      {{ label }}
+      <slot name="trigger">{{ label }}</slot>
     </button>
 
     <span v-else class="inline-flex items-center gap-2 rounded-sm border border-line bg-surface px-2 py-1">

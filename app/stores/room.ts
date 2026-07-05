@@ -59,6 +59,9 @@ export const useRoomStore = defineStore('room', () => {
   function makeHost(participantId: string) {
     transport.value?.({ type: 'makeHost', participantId })
   }
+  function leave() {
+    transport.value?.({ type: 'leave' })
+  }
 
   function reset() {
     roomState.value = null
@@ -93,6 +96,7 @@ export const useRoomStore = defineStore('room', () => {
     next,
     kick,
     makeHost,
+    leave,
     reset,
   }
 })
