@@ -1,5 +1,5 @@
 // ABOUTME: Multi-client end-to-end coverage of EstimateRoom's critical real-time journeys.
-// ABOUTME: create-and-join, a full voting round (hidden cast, reveal, spread, re-vote), and refresh-proof reconnect.
+// ABOUTME: create-and-join, a full voting round (hidden cast, reveal, spread, re-vote), refresh-proof reconnect, and logo leave paths.
 import { test, expect, type Browser, type Page } from '@playwright/test'
 
 // Contexts created off the shared browser don't inherit config `use`, so set baseURL
@@ -133,4 +133,60 @@ test('reconnect: a refresh keeps identity and the cast vote', async ({ browser }
   await expect(hand(page).getByRole('button', { name: '5', exact: true })).toHaveAttribute('aria-pressed', 'true')
 
   await page.context().close()
+})
+
+test('host leaves via logo: confirm guard, immediate handoff, roster removal', async ({ browser }) => {
+  const host = await newClient(browser)
+  const guest = await newClient(browser)
+
+  // Outside a live room the wordmark is a plain link home.
+  await host.goto('/')
+  await waitForHydration(host)
+  await expect(host.getByRole('link', { name: 'EstimateRoom' })).toHaveAttribute('href', '/')
+
+  const url = await createRoom(host)
+  await join(host, 'Alice')
+  await visitRoom(guest, url)
+  await join(guest, 'Bob')
+
+  // The logo click does not navigate; it opens the inline confirm.
+  await host.getByRole('button', { name: 'EstimateRoom' }).click()
+  await expect(host.getByText('Leave room? Host passes to another member.')).toBeVisible()
+
+  // Cancel keeps the host in the room.
+  await host.getByRole('button', { name: 'Cancel' }).click()
+  await expect(row(host, 'Alice')).toBeVisible()
+
+  // Confirming leaves and lands on the landing page.
+  await host.getByRole('button', { name: 'EstimateRoom' }).click()
+  await host.getByRole('button', { name: 'Leave', exact: true }).click()
+  await host.waitForURL('http://localhost:3000/')
+
+  // The guest is promoted immediately (no 10s grace) and the leaver's row is gone.
+  await expect(row(guest, 'Bob')).toContainText('Host')
+  await expect(row(guest, 'Alice')).toHaveCount(0)
+
+  await host.context().close()
+  await guest.context().close()
+})
+
+test('attendee leaves via logo: no confirm, straight home, roster removal', async ({ browser }) => {
+  const host = await newClient(browser)
+  const guest = await newClient(browser)
+
+  const url = await createRoom(host)
+  await join(host, 'Alice')
+  await visitRoom(guest, url)
+  await join(guest, 'Bob')
+
+  // A non-host gets no confirm; the logo leaves immediately.
+  await guest.getByRole('button', { name: 'EstimateRoom' }).click()
+  await guest.waitForURL('http://localhost:3000/')
+
+  // The host keeps the room; Bob's row is removed rather than greyed out.
+  await expect(row(host, 'Bob')).toHaveCount(0)
+  await expect(row(host, 'Alice')).toContainText('Host')
+
+  await host.context().close()
+  await guest.context().close()
 })
