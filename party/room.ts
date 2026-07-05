@@ -55,6 +55,7 @@ export class Room extends Server<Env> {
     else if (msg.type === 'revote' || msg.type === 'next') await this.handleRoundReset(connection)
     else if (msg.type === 'kick') await this.handleKick(connection, msg.participantId)
     else if (msg.type === 'makeHost') await this.handleMakeHost(connection, msg.participantId)
+    else if (msg.type === 'leave') await this.handleLeave(connection)
   }
 
   async handleMakeHost(connection: Connection, participantId: string) {
@@ -159,6 +160,29 @@ export class Room extends Server<Env> {
     for (const c of this.getConnections<ConnState>()) {
       if (c.state?.pid === participantId) c.close(1000, 'Removed by host')
     }
+    await this.broadcastState()
+  }
+
+  // An intentional exit (logo navigation): remove the leaver from the roster, unlike a
+  // disconnect, which keeps them greyed out. If they were host, hand off immediately
+  // rather than waiting out the disconnect grace.
+  async handleLeave(connection: Connection) {
+    const pid = this.pidOf(connection)
+    if (!pid) return
+    const registry = await this.getRegistry()
+    if (!registry[pid]) return
+    const next: Registry = {}
+    for (const [id, p] of Object.entries(registry)) if (id !== pid) next[id] = p
+    await this.putRegistry(next)
+
+    const hostId = (await this.ctx.storage.get<string>(HOST_KEY)) ?? null
+    if (hostId === pid) {
+      // Clear first so that if nobody is connected, the next joiner becomes host
+      // (handleJoin promotes the first joiner when no host is stored).
+      await this.ctx.storage.delete(HOST_KEY)
+      await this.reassignHost(this.connectedIds(connection.id))
+    }
+    connection.close(1000, 'left')
     await this.broadcastState()
   }
 
