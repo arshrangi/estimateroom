@@ -58,6 +58,9 @@ export const KickMessageSchema = z.object({ type: z.literal('kick'), participant
 /** The host hands the host role to another participant. */
 export const MakeHostMessageSchema = z.object({ type: z.literal('makeHost'), participantId: z.string() })
 
+/** A participant intentionally leaves the room; they are removed from the roster. */
+export const LeaveMessageSchema = z.object({ type: z.literal('leave') })
+
 export const ClientMessageSchema = z.discriminatedUnion('type', [
   JoinMessageSchema,
   ChangeDeckMessageSchema,
@@ -69,6 +72,7 @@ export const ClientMessageSchema = z.discriminatedUnion('type', [
   NextMessageSchema,
   KickMessageSchema,
   MakeHostMessageSchema,
+  LeaveMessageSchema,
 ])
 export type ClientMessage = z.infer<typeof ClientMessageSchema>
 

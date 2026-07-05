@@ -79,3 +79,13 @@ describe('ClientMessageSchema (join)', () => {
     expect(() => ClientMessageSchema.parse({ ...validJoin, avatar: 'gold' })).toThrow()
   })
 })
+
+describe('ClientMessageSchema (leave)', () => {
+  it('parses a leave message', () => {
+    expect(ClientMessageSchema.parse({ type: 'leave' })).toEqual({ type: 'leave' })
+  })
+
+  it('rejects an unknown message type', () => {
+    expect(() => ClientMessageSchema.parse({ type: 'depart' })).toThrow()
+  })
+})
