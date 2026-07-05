@@ -1,6 +1,6 @@
 // ABOUTME: Tests deck presets lookup and custom-deck parsing.
 import { describe, expect, it } from 'vitest'
-import { DECK_PRESETS, MAX_DECK_CARDS, getDeckPreset, normalizeCustomDeck } from './decks'
+import { DECK_PRESETS, MAX_DECK_CARDS, getDeckPreset, normalizeCustomDeck, normalizeStoredDeck } from './decks'
 
 describe('deck presets', () => {
   it('includes the expected presets with non-empty cards', () => {
@@ -34,5 +34,26 @@ describe('normalizeCustomDeck', () => {
 
   it('truncates over-long card values', () => {
     expect(normalizeCustomDeck('verylongcardvalue')[0]).toHaveLength(8)
+  })
+})
+
+describe('normalizeStoredDeck', () => {
+  it('accepts a stored array of cards', () => {
+    expect(normalizeStoredDeck(['1', '2', '3'])).toEqual(['1', '2', '3'])
+  })
+
+  it('rejects non-arrays and empty arrays', () => {
+    expect(normalizeStoredDeck('fib')).toBeNull()
+    expect(normalizeStoredDeck(null)).toBeNull()
+    expect(normalizeStoredDeck([])).toBeNull()
+  })
+
+  it('drops non-string and oversized entries, rejects if nothing valid remains', () => {
+    expect(normalizeStoredDeck(['1', 42, 'x'.repeat(9)])).toEqual(['1'])
+    expect(normalizeStoredDeck([42])).toBeNull()
+  })
+
+  it('rejects decks over the card cap', () => {
+    expect(normalizeStoredDeck(Array.from({ length: 16 }, (_, i) => String(i)))).toBeNull()
   })
 })

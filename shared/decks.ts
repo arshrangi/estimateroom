@@ -1,5 +1,5 @@
 // ABOUTME: Planning-poker deck presets and the parser for host-defined custom decks.
-// ABOUTME: A deck is just an ordered list of card face values; custom decks are per-room, not saved.
+// ABOUTME: A deck is just an ordered list of card face values; the browser remembers the last one used.
 export interface Deck {
   id: string
   label: string
@@ -19,6 +19,16 @@ export const MAX_CARD_LEN = 8
 
 export function getDeckPreset(id: string): Deck | undefined {
   return DECK_PRESETS.find((d) => d.id === id)
+}
+
+export const DECK_STORAGE_KEY = 'estimateroom-deck'
+export const PENDING_DECK_KEY = 'estimateroom-pending-deck'
+
+/** Validates a JSON-parsed stored deck: an array of non-empty short strings within the card cap, else null. */
+export function normalizeStoredDeck(raw: unknown): string[] | null {
+  if (!Array.isArray(raw) || raw.length > MAX_DECK_CARDS) return null
+  const cards = raw.filter((c): c is string => typeof c === 'string' && c.length > 0 && c.length <= MAX_CARD_LEN)
+  return cards.length ? cards : null
 }
 
 /** Parses a free-text custom deck (comma/space separated) into trimmed, de-duplicated, capped cards. */
