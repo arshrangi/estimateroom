@@ -27,58 +27,62 @@
   /* Spacing: Tailwind's default 4px-based scale already yields every DESIGN.md step
      (4=1, 6=1.5, 8=2, 12=3, 16=4, 18=4.5, 24=6), so no override is needed. */
 
-  /* Colors — light (default set; dark overrides below) */
-  --color-bg: #eef1f4;
+  /* Colors — light (default set; dark overrides below).
+     Brand: #f18100 (accent surfaces), #111a50 (ink), #feb05b (washes), #fff.
+     accent = orange as a surface; accent-ink = orange as text/focus ring (darkened for AA). */
+  --color-bg: #f0f2f8;
   --color-surface: #ffffff;
-  --color-surface-2: #e4e9ef;
-  --color-line: #d2dae2;
-  --color-line-soft: #ebeff3;
-  --color-ink: #1b2430;
-  --color-ink-soft: #56636f;
-  --color-ink-muted: #5e6a73;
-  --color-accent: #2e6f7e;
-  --color-accent-fg: #ffffff;
-  --color-accent-bg: #dbeaec;
-  --color-accent-border: #b7d6db;
+  --color-surface-2: #e4e8f3;
+  --color-line: #d3d9e9;
+  --color-line-soft: #eaedf6;
+  --color-ink: #111a50;
+  --color-ink-soft: #4a5378;
+  --color-ink-muted: #575f85;
+  --color-accent: #f18100;
+  --color-accent-fg: #111a50;
+  --color-accent-ink: #a85600;
+  --color-accent-bg: #fdeeda;
+  --color-accent-border: #f3c88f;
   --color-ok: #3e7a52;
-  --color-outlier: #8d5228;
-  --color-outlier-bg: #f3e3d4;
-  --color-outlier-border: #e0be9c;
-  --color-row-you: #f3f8f9;
+  --color-outlier: #a03059;
+  --color-outlier-bg: #f9e3ec;
+  --color-outlier-border: #e5abc4;
+  --color-row-you: #fdf5e9;
 
   /* Avatar tints (muted, on-brand) for the optional initials-square background */
-  --color-avatar-slate: #dee4ea;
-  --color-avatar-teal: #d3e6e9;
+  --color-avatar-slate: #dee3f0;
+  --color-avatar-teal: #d3e4ec;
   --color-avatar-forest: #d7e7dc;
-  --color-avatar-clay: #ede0d3;
-  --color-avatar-plum: #e4dce8;
+  --color-avatar-clay: #f8e3c8;
+  --color-avatar-plum: #e6dcec;
 }
 
 /* Dark theme: hand-tuned, not derived by inversion. */
 .dark {
-  --color-bg: #11161c;
-  --color-surface: #18202a;
-  --color-surface-2: #1f2935;
-  --color-line: #2a3643;
-  --color-line-soft: #1e2832;
-  --color-ink: #e6ecf2;
-  --color-ink-soft: #93a2b2;
-  --color-ink-muted: #8a97a6;
-  --color-accent: #5fb6c6;
-  --color-accent-fg: #11161c;
-  --color-accent-bg: #16323a;
-  --color-accent-border: #27505a;
+  --color-bg: #0b1029;
+  --color-surface: #111a50;
+  --color-surface-2: #1b2563;
+  --color-line: #2b3576;
+  --color-line-soft: #182055;
+  --color-ink: #eef0f8;
+  --color-ink-soft: #aeb6d8;
+  --color-ink-muted: #a0a9cf;
+  --color-accent: #feb05b;
+  --color-accent-fg: #111a50;
+  --color-accent-ink: #feb05b;
+  --color-accent-bg: #3a2b10;
+  --color-accent-border: #7a5b22;
   --color-ok: #7fc396;
-  --color-outlier: #d89a5e;
-  --color-outlier-bg: #322316;
-  --color-outlier-border: #5c4326;
-  --color-row-you: #152028;
+  --color-outlier: #e795b4;
+  --color-outlier-bg: #3c1f2d;
+  --color-outlier-border: #713952;
+  --color-row-you: #18215c;
 
-  --color-avatar-slate: #26313d;
-  --color-avatar-teal: #1b3942;
-  --color-avatar-forest: #21362a;
-  --color-avatar-clay: #362a1e;
-  --color-avatar-plum: #2e2637;
+  --color-avatar-slate: #232c5e;
+  --color-avatar-teal: #1b3350;
+  --color-avatar-forest: #1d3a2f;
+  --color-avatar-clay: #45341a;
+  --color-avatar-plum: #392b4a;
 }
 
 html {
