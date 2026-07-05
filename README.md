@@ -106,7 +106,7 @@ The hosted instance runs the same two-Worker setup.
 
 ## Support
 
-EstimateRoom is free and stays ad-free, funded by voluntary sponsorship — never ads or a paywall. If it saves your team time, consider [sponsoring the project](https://github.com/sponsors/arshdeeprangi) (see `.github/FUNDING.yml`).
+EstimateRoom is free and stays ad-free, funded by voluntary sponsorship — never ads or a paywall. If it saves your team time, consider [buying me a coffee](https://buymeacoffee.com/arshrangi) (see `.github/FUNDING.yml`).
 
 ## Contributing
 

@@ -19,7 +19,11 @@ onMounted(init)
           href="https://github.com/arshrangi/estimateroom"
           class="rounded-sm underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >GitHub</a>
-        · Apache-2.0
+        · Apache-2.0 ·
+        <a
+          href="https://buymeacoffee.com/arshrangi"
+          class="rounded-sm underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >Buy me a coffee</a>
       </p>
     </footer>
     <AppToast />
