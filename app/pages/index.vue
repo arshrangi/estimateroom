@@ -39,16 +39,5 @@ async function createRoom() {
       </button>
     </div>
 
-    <footer class="mt-10 font-mono text-meta text-ink-muted">
-      <p>Free and open source. Self-hostable. Light and dark, built in.</p>
-      <p class="mt-2">
-        No accounts, no tracking. Rooms expire after 30 idle minutes.
-        <a
-          href="https://github.com/arshrangi/estimateroom"
-          class="rounded-sm underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >GitHub</a>
-        · Apache-2.0
-      </p>
-    </footer>
   </main>
 </template>
