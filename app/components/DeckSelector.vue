@@ -1,21 +1,21 @@
 <script setup lang="ts">
 // ABOUTME: Host-only top-bar control to set the room's deck from a preset or a custom card list.
 // ABOUTME: Shown only to the host; changing the deck broadcasts to everyone via the store.
-import { DECK_PRESETS, normalizeCustomDeck } from '~~/shared/decks'
+import { DECK_PRESETS } from '~~/shared/decks'
 
 const store = useRoomStore()
 const { identity } = useIdentity()
+const deckMemory = useDeckMemory()
 
 const isHost = computed(() => !!store.hostId && store.hostId === identity.value.participantId)
 const votesExist = computed(() => store.revealed || store.participants.some((p) => p.hasVoted))
 const open = ref(false)
-const custom = ref('')
 // When votes already exist, a chosen deck waits here for confirmation (changing clears votes).
 const pending = ref<string[] | null>(null)
 
 const rootEl = ref<HTMLElement | null>(null)
 const triggerEl = ref<HTMLButtonElement | null>(null)
-const firstPresetEl = ref<HTMLButtonElement | null>(null)
+const pickerEl = ref<{ focusFirst: () => void } | null>(null)
 const confirmEl = ref<HTMLButtonElement | null>(null)
 
 const currentLabel = computed(() => {
@@ -27,14 +27,13 @@ const currentLabel = computed(() => {
 
 function openPanel() {
   open.value = true
-  nextTick(() => firstPresetEl.value?.focus())
+  nextTick(() => pickerEl.value?.focusFirst())
 }
 
 // Close the panel; return focus to the trigger unless focus already left the control (outside click).
 function closePanel(returnFocus = true) {
   open.value = false
   pending.value = null
-  custom.value = ''
   if (returnFocus) nextTick(() => triggerEl.value?.focus())
 }
 
@@ -45,6 +44,7 @@ function toggle() {
 
 function apply(cards: string[]) {
   store.changeDeck(cards)
+  deckMemory.save(cards)
   closePanel()
 }
 
@@ -52,10 +52,6 @@ function choose(cards: string[]) {
   if (!cards.length) return
   if (votesExist.value) pending.value = cards
   else apply(cards)
-}
-
-function applyCustom() {
-  choose(normalizeCustomDeck(custom.value))
 }
 
 // A deck change with votes present asks for confirmation; move focus to the confirm action.
@@ -117,33 +113,7 @@ onBeforeUnmount(() => {
       </div>
 
       <template v-else>
-        <button
-          v-for="(d, i) in DECK_PRESETS"
-          :key="d.id"
-          :ref="(el) => { if (i === 0) firstPresetEl = el as HTMLButtonElement }"
-          type="button"
-          class="flex w-full flex-col rounded-sm px-2 py-1 text-left hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          @click="choose(d.cards)"
-        >
-          <span class="text-body text-ink">{{ d.label }}</span>
-          <span class="font-mono text-meta text-ink-muted">{{ d.cards.slice(0, 7).join(' ') }}{{ d.cards.length > 7 ? ' …' : '' }}</span>
-        </button>
-
-        <form class="mt-2 flex gap-1 border-t border-line-soft pt-2" @submit.prevent="applyCustom">
-          <input
-            v-model="custom"
-            type="text"
-            placeholder="Custom: 1 2 3 5 8"
-            aria-label="Custom deck values"
-            class="h-8 w-full rounded-sm border border-line bg-bg px-2 font-mono text-meta text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-          <button
-            type="submit"
-            class="h-8 shrink-0 rounded-sm border border-line bg-surface px-2 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-            Set
-          </button>
-        </form>
+        <DeckPicker ref="pickerEl" :selected="store.deck" @pick="choose" />
       </template>
     </div>
   </div>
