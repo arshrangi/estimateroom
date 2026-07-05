@@ -24,12 +24,12 @@ function leaveRoom() {
     <button
       v-else-if="inLiveRoom"
       type="button"
-      class="cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
       @click="leaveRoom"
     >
       <TheWordmark />
     </button>
-    <NuxtLink v-else to="/" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+    <NuxtLink v-else to="/" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink">
       <TheWordmark />
     </NuxtLink>
     <div class="flex items-center gap-3">

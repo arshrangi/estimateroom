@@ -17,12 +17,12 @@ onMounted(init)
         No accounts, no tracking. Rooms expire after 30 idle minutes.
         <a
           href="https://github.com/arshrangi/estimateroom"
-          class="rounded-sm underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="rounded-sm underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         >GitHub</a>
         · Apache-2.0 ·
         <a
           href="https://buymeacoffee.com/arshrangi"
-          class="rounded-sm underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="rounded-sm underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         >Buy me a coffee</a>
       </p>
     </footer>

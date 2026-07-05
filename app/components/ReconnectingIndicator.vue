@@ -15,7 +15,7 @@ defineEmits<{ retry: [] }>()
     <span>Reconnecting…</span>
     <button
       type="button"
-      class="underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
       @click="$emit('retry')"
     >
       Reconnect now

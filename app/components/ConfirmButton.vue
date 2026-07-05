@@ -48,7 +48,7 @@ const triggerClass = computed(() => {
       v-if="!open"
       ref="triggerRef"
       type="button"
-      class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
       :class="triggerClass"
       @click="openConfirm"
     >
@@ -60,7 +60,7 @@ const triggerClass = computed(() => {
       <button
         ref="confirmRef"
         type="button"
-        class="rounded-sm px-2 py-1 font-mono text-meta font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="rounded-sm px-2 py-1 font-mono text-meta font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         :class="destructive ? 'bg-outlier-bg text-outlier' : 'bg-accent text-accent-fg'"
         @click="confirm"
       >
@@ -68,7 +68,7 @@ const triggerClass = computed(() => {
       </button>
       <button
         type="button"
-        class="rounded-sm px-2 py-1 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="rounded-sm px-2 py-1 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         @click="cancel"
       >
         Cancel

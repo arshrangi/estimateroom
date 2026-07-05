@@ -95,7 +95,7 @@ const tintClass: Record<AvatarTint, string> = {
 
         <button
           type="button"
-          class="mt-5 h-[38px] w-full rounded-sm bg-accent px-4 font-semibold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="mt-5 h-[38px] w-full rounded-sm bg-accent px-4 font-semibold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
           @click="emit('join', commitDeck())"
         >
           Continue as {{ identity.name }}
@@ -118,7 +118,7 @@ const tintClass: Record<AvatarTint, string> = {
             maxlength="40"
             :aria-invalid="!!error"
             :aria-describedby="error ? 'name-error' : undefined"
-            class="mt-1 h-[38px] w-full rounded-sm border border-line bg-bg px-3 text-body text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            class="mt-1 h-[38px] w-full rounded-sm border border-line bg-bg px-3 text-body text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
             @input="error = ''"
           >
         </label>
@@ -135,7 +135,7 @@ const tintClass: Record<AvatarTint, string> = {
               type="button"
               :aria-label="t"
               :aria-pressed="avatar === t"
-              class="size-6 rounded-sm border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              class="size-6 rounded-sm border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
               :class="[tintClass[t], avatar === t ? 'border-accent' : 'border-line']"
               @click="pickTint(t)"
             />
@@ -143,7 +143,7 @@ const tintClass: Record<AvatarTint, string> = {
         </div>
 
         <label class="mt-4 flex items-center gap-2">
-          <input v-model="observer" type="checkbox" class="size-4 accent-[var(--color-accent)]">
+          <input v-model="observer" type="checkbox" class="size-4 accent-[var(--color-accent-ink)]">
           <span class="text-body text-ink-soft">Join as observer (watch, don't vote)</span>
         </label>
 
@@ -156,7 +156,7 @@ const tintClass: Record<AvatarTint, string> = {
 
         <button
           type="submit"
-          class="mt-5 h-[38px] w-full rounded-sm bg-accent px-4 font-semibold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="mt-5 h-[38px] w-full rounded-sm bg-accent px-4 font-semibold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         >
           Join
         </button>

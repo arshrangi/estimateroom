@@ -83,7 +83,7 @@ onBeforeUnmount(() => {
       aria-haspopup="true"
       aria-controls="deck-panel"
       :aria-expanded="open"
-      class="flex h-8 items-center gap-1 rounded-sm border border-line bg-surface px-3 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="flex h-8 items-center gap-1 rounded-sm border border-line bg-surface px-3 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
       @click="toggle"
     >
       {{ currentLabel }}
@@ -97,14 +97,14 @@ onBeforeUnmount(() => {
           <button
             ref="confirmEl"
             type="button"
-            class="h-8 rounded-sm bg-accent px-3 font-mono text-meta font-bold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            class="h-8 rounded-sm bg-accent px-3 font-mono text-meta font-bold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
             @click="apply(pending)"
           >
             Change deck
           </button>
           <button
             type="button"
-            class="h-8 rounded-sm px-3 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            class="h-8 rounded-sm px-3 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
             @click="pending = null"
           >
             Cancel

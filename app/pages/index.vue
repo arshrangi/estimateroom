@@ -26,7 +26,7 @@ async function createRoom() {
       Ad-free, account-free estimation for agile teams. Open a room, paste the link, estimate.
     </p>
 
-    <p class="mt-5 inline-flex items-center gap-2 rounded-sm border border-accent-border bg-accent-bg px-3 py-1.5 font-mono text-meta text-accent">
+    <p class="mt-5 inline-flex items-center gap-2 rounded-sm border border-accent-border bg-accent-bg px-3 py-1.5 font-mono text-meta text-accent-ink">
       No ads, no signup, ever
     </p>
 
@@ -35,7 +35,7 @@ async function createRoom() {
         type="button"
         :disabled="creating"
         :aria-busy="creating"
-        class="h-11 cursor-pointer rounded-sm bg-accent px-6 text-body font-semibold text-accent-fg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="h-11 cursor-pointer rounded-sm bg-accent px-6 text-body font-semibold text-accent-fg disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         @click="createRoom"
       >
         {{ creating ? 'Creating room…' : 'Create a room' }}

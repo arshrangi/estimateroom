@@ -40,7 +40,7 @@ defineExpose({ focusFirst })
       :ref="(el) => { if (i === 0) firstPresetEl = el as HTMLButtonElement }"
       type="button"
       :aria-pressed="isSelected(d.cards)"
-      class="flex w-full flex-col rounded-sm px-2 py-1 text-left hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="flex w-full flex-col rounded-sm px-2 py-1 text-left hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
       :class="isSelected(d.cards) ? 'bg-surface-2' : ''"
       @click="emit('pick', d.cards)"
     >
@@ -54,11 +54,11 @@ defineExpose({ focusFirst })
         type="text"
         placeholder="Custom: 1 2 3 5 8"
         aria-label="Custom deck values"
-        class="h-8 w-full rounded-sm border border-line bg-bg px-2 font-mono text-meta text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="h-8 w-full rounded-sm border border-line bg-bg px-2 font-mono text-meta text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
       >
       <button
         type="submit"
-        class="h-8 shrink-0 rounded-sm border border-line bg-surface px-2 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="h-8 shrink-0 rounded-sm border border-line bg-surface px-2 font-mono text-meta text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
       >
         Set
       </button>

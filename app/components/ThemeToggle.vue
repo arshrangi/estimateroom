@@ -21,7 +21,7 @@ const cells: { value: Theme; label: string }[] = [
       :key="cell.value"
       type="button"
       :aria-pressed="theme === cell.value"
-      class="h-8 px-3 font-mono text-meta transition-colors not-first:border-l not-first:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="h-8 px-3 font-mono text-meta transition-colors not-first:border-l not-first:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
       :class="theme === cell.value ? 'bg-ink text-bg' : 'text-ink-soft hover:text-ink'"
       @click="set(cell.value)"
     >

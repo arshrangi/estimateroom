@@ -23,7 +23,7 @@ const modes: { value: RevealMode; label: string }[] = [
           :key="m.value"
           type="button"
           :aria-pressed="store.revealMode === m.value"
-          class="h-8 px-3 font-mono text-meta not-first:border-l not-first:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="h-8 px-3 font-mono text-meta not-first:border-l not-first:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
           :class="store.revealMode === m.value ? 'bg-ink text-bg' : 'text-ink-soft hover:text-ink'"
           @click="store.setRevealMode(m.value)"
         >
@@ -32,7 +32,7 @@ const modes: { value: RevealMode; label: string }[] = [
       </div>
       <button
         type="button"
-        class="h-[38px] rounded-sm bg-accent px-4 font-semibold text-accent-fg disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="h-[38px] rounded-sm bg-accent px-4 font-semibold text-accent-fg disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         :disabled="!anyVote"
         @click="store.reveal()"
       >
@@ -50,7 +50,7 @@ const modes: { value: RevealMode; label: string }[] = [
       />
       <button
         type="button"
-        class="h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         @click="store.next()"
       >
         Next

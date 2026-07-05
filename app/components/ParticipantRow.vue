@@ -39,9 +39,9 @@ const descriptor = computed(() => {
       <span class="min-w-0 truncate text-body font-semibold text-ink">{{ participant.name }}</span>
       <span
         v-if="isHost"
-        class="shrink-0 rounded-sm bg-accent-bg px-1.5 py-0.5 font-mono text-label-caps font-bold uppercase tracking-wider text-accent"
+        class="shrink-0 rounded-sm bg-accent-bg px-1.5 py-0.5 font-mono text-label-caps font-bold uppercase tracking-wider text-accent-ink"
       >Host</span>
-      <span v-if="isYou" class="shrink-0 text-meta text-accent">· you</span>
+      <span v-if="isYou" class="shrink-0 text-meta text-accent-ink">· you</span>
       <span v-if="participant.role === 'observer'" class="shrink-0 font-mono text-meta text-ink-muted">observer</span>
     </div>
 
@@ -49,7 +49,7 @@ const descriptor = computed(() => {
       <button
         v-if="canManage && !isHost"
         type="button"
-        class="font-mono text-meta text-ink-muted hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="font-mono text-meta text-ink-muted hover:text-accent-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         @click="$emit('makeHost')"
       >
         Make host

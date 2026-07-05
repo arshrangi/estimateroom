@@ -9,7 +9,7 @@ const { message } = useToast()
       v-if="message"
       role="status"
       aria-live="polite"
-      class="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-sm border border-accent-border bg-accent-bg px-4 py-2 font-mono text-meta text-accent shadow-md"
+      class="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-sm border border-accent-border bg-accent-bg px-4 py-2 font-mono text-meta text-accent-ink shadow-md"
     >
       {{ message }}
     </div>

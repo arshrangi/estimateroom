@@ -18,7 +18,7 @@ const body = computed(() =>
     <p class="mt-2 text-body text-ink-soft">{{ body }}</p>
     <NuxtLink
       to="/"
-      class="mt-5 inline-block h-[38px] rounded-sm bg-accent px-4 font-semibold leading-[38px] text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="mt-5 inline-block h-[38px] rounded-sm bg-accent px-4 font-semibold leading-[38px] text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
     >
       Create a room
     </NuxtLink>

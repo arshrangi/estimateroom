@@ -7,9 +7,9 @@ const { copied, copy } = useInvite(props.roomId)
 <template>
   <button
     type="button"
-    class="h-8 rounded-sm border px-3 font-mono text-meta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    class="h-8 rounded-sm border px-3 font-mono text-meta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
     :class="copied
-      ? 'border-accent-border bg-accent-bg text-accent'
+      ? 'border-accent-border bg-accent-bg text-accent-ink'
       : 'border-line bg-surface text-ink-soft hover:text-ink'"
     @click="copy"
   >
