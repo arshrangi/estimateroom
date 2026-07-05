@@ -12,6 +12,20 @@ const { status, error, connect, disconnect, reconnect } = useRoomSocket(roomId.v
 
 const entered = ref(false)
 
+const deckMemory = useDeckMemory()
+
+// Seed a just-created room: the creator arrives holding a one-shot pending deck.
+// Guarded three ways (host, still deckless, stash present) so a refresh or a guest never triggers it.
+watch(
+  () => store.roomState,
+  (state) => {
+    if (!state || state.deck !== null) return
+    if (state.hostId !== identity.value.participantId) return
+    const pending = deckMemory.takePendingDeck()
+    if (pending) store.changeDeck(pending)
+  },
+)
+
 function enter() {
   entered.value = true
   connect()
