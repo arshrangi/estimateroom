@@ -24,7 +24,7 @@ function leaveRoom() {
     <button
       v-else-if="inLiveRoom"
       type="button"
-      class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      class="cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       @click="leaveRoom"
     >
       <TheWordmark />

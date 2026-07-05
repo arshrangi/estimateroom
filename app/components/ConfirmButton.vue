@@ -35,7 +35,7 @@ function confirm() {
 }
 
 const triggerClass = computed(() => {
-  if (slots.trigger) return 'rounded-sm'
+  if (slots.trigger) return 'cursor-pointer rounded-sm'
   return props.compact
     ? 'font-mono text-meta text-ink-muted hover:text-outlier'
     : 'h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink'
