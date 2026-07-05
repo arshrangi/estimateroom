@@ -100,7 +100,7 @@ The hosted instance runs the same two-Worker setup.
 
 ## Privacy
 
-- **No accounts, no PII.** The only personal data is a self-chosen display name, stored in your own browser (`localStorage`), never on a server.
+- **No accounts.** The only personal data is a self-chosen display name. It is remembered in your own browser (`localStorage`) and sent to the server only while a room is live, where it is kept in the room's transient state and discarded when the room expires.
 - **Ephemeral rooms.** The server holds only transient room state for the room's lifetime; a room with no one connected expires after 30 minutes and its state is discarded. Estimates are not persisted after a room expires.
 - **No tracking.** No analytics that collect personal data, no third-party ad or tracking scripts.
 
