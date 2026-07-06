@@ -8,7 +8,7 @@ defineEmits<{ pick: [] }>()
   <button
     type="button"
     :aria-pressed="selected"
-    class="flex h-14 w-[42px] items-center justify-center rounded-sm border font-mono text-vote font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
+    class="flex h-16 w-12 items-center justify-center rounded-sm border font-mono text-vote font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
     :class="selected
       ? 'border-accent bg-accent text-accent-fg ring-3 ring-accent-bg'
       : 'border-line bg-surface text-ink-soft hover:text-ink'"

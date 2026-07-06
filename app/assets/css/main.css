@@ -28,8 +28,9 @@
      (4=1, 6=1.5, 8=2, 12=3, 16=4, 18=4.5, 24=6), so no override is needed. */
 
   /* Colors — light (default set; dark overrides below).
-     Brand: #f18100 (accent surfaces), #111a50 (ink), #feb05b (washes), #fff.
-     accent = orange as a surface; accent-ink = orange as text/focus ring (darkened for AA). */
+     Brand: #f18100 (orange family), #111a50 (ink), #feb05b (washes), #fff.
+     accent = orange as a surface, darkened so white button text passes AA;
+     accent-ink = orange as text/focus ring (darkened for AA). */
   --color-bg: #f0f2f8;
   --color-surface: #ffffff;
   --color-surface-2: #e4e8f3;
@@ -38,8 +39,8 @@
   --color-ink: #111a50;
   --color-ink-soft: #4a5378;
   --color-ink-muted: #575f85;
-  --color-accent: #f18100;
-  --color-accent-fg: #111a50;
+  --color-accent: #b25900;
+  --color-accent-fg: #ffffff;
   --color-accent-ink: #a85600;
   --color-accent-bg: #fdeeda;
   --color-accent-border: #f3c88f;
