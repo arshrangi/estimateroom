@@ -106,10 +106,6 @@ The hosted instance at [estimateroom.rangiarshdeep.workers.dev](https://estimate
 - **Ephemeral rooms.** The server holds only transient room state for the room's lifetime; a room with no one connected expires after 1 hour and its state is discarded. Estimates are not persisted after a room expires.
 - **No tracking.** No analytics that collect personal data, no third-party ad or tracking scripts.
 
-## Support
-
-EstimateRoom is free and stays ad-free, funded by voluntary sponsorship — never ads or a paywall. If it saves your team time, consider [buying me a coffee](https://buymeacoffee.com/arshrangi) (see `.github/FUNDING.yml`).
-
 ## Contributing
 
 Issues and pull requests are welcome. Before opening a PR, run the full check suite (`pnpm lint && pnpm typecheck && pnpm test`) and keep changes within the ~200 KB gzip client-JS budget. The message contract in `shared/` is the source of truth for both Workers — change it there, never fork a copy.
@@ -117,3 +113,7 @@ Issues and pull requests are welcome. Before opening a PR, run the full check su
 ## License
 
 [Apache-2.0](./LICENSE).
+
+---
+
+EstimateRoom is free and stays ad-free — never ads, never a paywall. If it makes your sprint plannings a little smoother, you can [☕ buy me a coffee](https://buymeacoffee.com/arshrangi) to help keep it that way.
