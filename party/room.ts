@@ -20,7 +20,7 @@ interface ConnState {
   pid: string
 }
 
-const DEFAULT_IDLE_EXPIRY_MS = 30 * 60 * 1000
+const DEFAULT_IDLE_EXPIRY_MS = 60 * 60 * 1000
 const DEFAULT_HOST_GRACE_MS = 10 * 1000
 const PARTICIPANTS_KEY = 'participants'
 const EXPIRED_KEY = 'expired'

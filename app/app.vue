@@ -14,7 +14,7 @@ onMounted(init)
     <footer class="mx-auto w-full max-w-[1180px] px-4 pb-4 text-center font-mono text-meta text-ink-muted">
       <p>Free and open source. Self-hostable. Light and dark, built in.</p>
       <p class="mt-2">
-        No accounts, no tracking. Rooms expire after 30 idle minutes.
+        No accounts, no tracking. Rooms expire after an hour of inactivity.
         <a
           href="https://github.com/arshrangi/estimateroom"
           class="rounded-sm underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
