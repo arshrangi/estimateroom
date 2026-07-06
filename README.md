@@ -2,6 +2,8 @@
 
 Ad-free, account-free, open-source planning poker for agile teams. Open a room, paste the link, estimate.
 
+**Try it live:** [estimateroom.rangiarshdeep.workers.dev](https://estimateroom.rangiarshdeep.workers.dev)
+
 - **No ads, no signup, ever.** The only personal data is a display name you type, kept in your own browser.
 - **Real-time.** Votes, reveals, and presence propagate instantly over WebSockets.
 - **Hidden votes.** Individual votes stay secret until a simultaneous reveal, so no one anchors the room.
@@ -96,7 +98,7 @@ pnpm exec wrangler deploy --config party/wrangler.jsonc
 
 `shared/` is imported by both Workers, so a contract change means redeploying both. `NUXT_PUBLIC_PARTY_HOST` is already stored as a secret and survives redeploys — you only set it again if the party Worker's host changes.
 
-The hosted instance runs the same two-Worker setup.
+The hosted instance at [estimateroom.rangiarshdeep.workers.dev](https://estimateroom.rangiarshdeep.workers.dev) runs the same two-Worker setup.
 
 ## Privacy
 
