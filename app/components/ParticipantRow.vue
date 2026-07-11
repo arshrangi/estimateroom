@@ -2,7 +2,6 @@
 // ABOUTME: One participant row: identity on the left, voted/waiting status (or the revealed value) on the right.
 // ABOUTME: The row's accessible label carries name, role, and status/value; the visual cell mirrors it.
 import type { Participant } from '~~/shared/protocol'
-import type { Spread } from '~~/shared/spread'
 
 const props = defineProps<{
   participant: Participant
@@ -10,7 +9,6 @@ const props = defineProps<{
   isYou: boolean
   canManage: boolean
   revealed: boolean
-  spread: Spread
 }>()
 
 defineEmits<{ kick: []; makeHost: [] }>()
@@ -64,7 +62,7 @@ const descriptor = computed(() => {
         @confirm="$emit('kick')"
       />
       <div aria-hidden="true" class="text-right font-mono text-meta">
-        <VoteValue v-if="revealed && participant.role !== 'observer'" :value="participant.vote" :spread="spread" />
+        <VoteValue v-if="revealed && participant.role !== 'observer'" :value="participant.vote" />
         <template v-else>
           <span v-if="participant.role === 'observer'" class="text-ink-muted">—</span>
           <span v-else-if="participant.hasVoted" class="inline-flex items-center gap-1 text-ok">

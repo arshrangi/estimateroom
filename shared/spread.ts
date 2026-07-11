@@ -1,4 +1,4 @@
-// ABOUTME: Computes the revealed spread (median, range, consensus) and flags low/high outliers.
+// ABOUTME: Computes the revealed spread (median, range, consensus) and grades it by deck steps.
 // ABOUTME: Numeric cards (and ½) drive the stats; non-numeric decks (e.g. T-shirt) degrade to a count only.
 export interface Spread {
   count: number
@@ -24,16 +24,6 @@ export function computeSpread(votes: string[]): Spread {
   const mid = Math.floor(sorted.length / 2)
   const median = sorted.length % 2 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2
   return { count: votes.length, median, min: sorted[0]!, max: sorted[sorted.length - 1]!, consensus }
-}
-
-/** Flags a vote value as a low/high outlier, but only when the numeric votes actually disagree. */
-export function outlierFlag(value: string, spread: Spread): 'low' | 'high' | null {
-  if (spread.min === null || spread.max === null || spread.min === spread.max) return null
-  const n = parseCard(value)
-  if (n === null) return null
-  if (n === spread.min) return 'low'
-  if (n === spread.max) return 'high'
-  return null
 }
 
 export type SpreadGrade = 'low' | 'moderate' | 'high'

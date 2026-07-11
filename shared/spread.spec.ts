@@ -1,6 +1,6 @@
-// ABOUTME: Tests spread stats and outlier flagging over revealed votes.
+// ABOUTME: Tests spread stats and deck-step grading over revealed votes.
 import { describe, expect, it } from 'vitest'
-import { computeSpread, outlierFlag, parseCard, spreadGrade } from './spread'
+import { computeSpread, parseCard, spreadGrade } from './spread'
 
 describe('parseCard', () => {
   it('parses numbers and ½, rejects non-numeric', () => {
@@ -35,19 +35,6 @@ describe('computeSpread', () => {
     const s = computeSpread(['S', 'M', 'L'])
     expect(s.median).toBeNull()
     expect(s.count).toBe(3)
-  })
-})
-
-describe('outlierFlag', () => {
-  const s = computeSpread(['3', '5', '5', '13'])
-  it('flags the min as low and max as high when votes disagree', () => {
-    expect(outlierFlag('3', s)).toBe('low')
-    expect(outlierFlag('13', s)).toBe('high')
-    expect(outlierFlag('5', s)).toBeNull()
-  })
-
-  it('flags nothing on consensus', () => {
-    expect(outlierFlag('5', computeSpread(['5', '5']))).toBeNull()
   })
 })
 
