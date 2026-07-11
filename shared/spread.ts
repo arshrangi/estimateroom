@@ -35,3 +35,19 @@ export function outlierFlag(value: string, spread: Spread): 'low' | 'high' | nul
   if (n === spread.max) return 'high'
   return null
 }
+
+export type SpreadGrade = 'low' | 'moderate' | 'high'
+
+/** Grades min-to-max vote distance in deck card positions; null when fewer than two distinct numeric in-deck votes. */
+export function spreadGrade(votes: string[], deck: string[]): SpreadGrade | null {
+  const indices = votes
+    .filter((v) => parseCard(v) !== null)
+    .map((v) => deck.indexOf(v))
+    .filter((i) => i !== -1)
+  if (indices.length < 2) return null
+  const steps = Math.max(...indices) - Math.min(...indices)
+  if (steps === 0) return null
+  if (steps === 1) return 'low'
+  if (steps === 2) return 'moderate'
+  return 'high'
+}

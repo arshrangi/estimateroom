@@ -1,6 +1,6 @@
 // ABOUTME: Tests spread stats and outlier flagging over revealed votes.
 import { describe, expect, it } from 'vitest'
-import { computeSpread, outlierFlag, parseCard } from './spread'
+import { computeSpread, outlierFlag, parseCard, spreadGrade } from './spread'
 
 describe('parseCard', () => {
   it('parses numbers and ½, rejects non-numeric', () => {
@@ -48,5 +48,39 @@ describe('outlierFlag', () => {
 
   it('flags nothing on consensus', () => {
     expect(outlierFlag('5', computeSpread(['5', '5']))).toBeNull()
+  })
+})
+
+describe('spreadGrade', () => {
+  const fib = ['0', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89']
+
+  it('grades adjacent cards as low', () => {
+    expect(spreadGrade(['3', '5'], fib)).toBe('low')
+  })
+
+  it('grades two steps as moderate', () => {
+    expect(spreadGrade(['3', '5', '8'], fib)).toBe('moderate')
+  })
+
+  it('grades three or more steps as high', () => {
+    expect(spreadGrade(['3', '13'], fib)).toBe('high')
+  })
+
+  it('measures deck positions, not numeric distance', () => {
+    expect(spreadGrade(['13', '21'], fib)).toBe('low')
+  })
+
+  it('returns null on identical votes (consensus handles that)', () => {
+    expect(spreadGrade(['5', '5'], fib)).toBeNull()
+  })
+
+  it('returns null for fewer than two numeric votes', () => {
+    expect(spreadGrade([], fib)).toBeNull()
+    expect(spreadGrade(['5'], fib)).toBeNull()
+  })
+
+  it('ignores non-numeric votes and off-deck values', () => {
+    expect(spreadGrade(['S', 'L'], ['S', 'M', 'L'])).toBeNull()
+    expect(spreadGrade(['3', '5', '?'], fib)).toBe('low')
   })
 })
