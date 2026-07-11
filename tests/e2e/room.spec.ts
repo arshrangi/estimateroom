@@ -96,6 +96,10 @@ test('voting round: hidden cast, simultaneous reveal, spread, then re-vote', asy
   for (const p of [host, guest]) {
     await expect(p.getByRole('status').filter({ hasText: 'Median' })).toBeVisible()
   }
+  // The spread is graded by deck steps (5 and 8 are neighbours), with an explainer tooltip.
+  await expect(host.getByText('spread: low')).toBeVisible()
+  await host.getByRole('button', { name: 'What spread means' }).focus()
+  await expect(host.getByRole('tooltip')).toBeVisible()
   // The revealed value is now visible in the roster on the other client.
   await expect(row(guest, 'Alice')).toContainText('5')
 
