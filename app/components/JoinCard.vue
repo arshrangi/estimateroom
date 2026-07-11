@@ -122,7 +122,7 @@ const tintClass: Record<AvatarTint, string> = {
             @input="error = ''"
           >
         </label>
-        <p v-if="error" id="name-error" role="alert" class="mt-1 text-meta text-outlier">{{ error }}</p>
+        <p v-if="error" id="name-error" role="alert" class="mt-1 text-meta text-danger">{{ error }}</p>
         <p v-else class="mt-1 text-meta text-ink-muted">No signup. This is just how the team sees you.</p>
 
         <div class="mt-4">

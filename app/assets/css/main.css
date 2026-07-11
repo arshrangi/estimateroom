@@ -45,9 +45,9 @@
   --color-accent-bg: #fdeeda;
   --color-accent-border: #f3c88f;
   --color-ok: #3e7a52;
-  --color-outlier: #a03059;
-  --color-outlier-bg: #f9e3ec;
-  --color-outlier-border: #e5abc4;
+  --color-danger: #a03059;
+  --color-danger-bg: #f9e3ec;
+  --color-danger-border: #e5abc4;
   --color-row-you: #fdf5e9;
 
   /* Avatar tints (muted, on-brand) for the optional initials-square background */
@@ -74,9 +74,9 @@
   --color-accent-bg: #3a2b10;
   --color-accent-border: #7a5b22;
   --color-ok: #7fc396;
-  --color-outlier: #e795b4;
-  --color-outlier-bg: #3c1f2d;
-  --color-outlier-border: #713952;
+  --color-danger: #e795b4;
+  --color-danger-bg: #3c1f2d;
+  --color-danger-border: #713952;
   --color-row-you: #18215c;
 
   --color-avatar-slate: #232c5e;

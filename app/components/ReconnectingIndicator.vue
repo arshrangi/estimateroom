@@ -10,7 +10,7 @@ defineEmits<{ retry: [] }>()
     v-if="show"
     role="status"
     aria-live="polite"
-    class="flex items-center gap-3 rounded-sm border border-outlier-border bg-outlier-bg px-3 py-1.5 font-mono text-meta text-outlier"
+    class="flex items-center gap-3 rounded-sm border border-danger-border bg-danger-bg px-3 py-1.5 font-mono text-meta text-danger"
   >
     <span>Reconnecting…</span>
     <button

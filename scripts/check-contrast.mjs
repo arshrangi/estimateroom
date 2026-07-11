@@ -44,7 +44,7 @@ const TEXT_PAIRS = [
   ['accent-fg', 'accent'],
   ['accent-ink', 'bg'], ['accent-ink', 'surface'], ['accent-ink', 'accent-bg'],
   ['ok', 'bg'], ['ok', 'surface'],
-  ['outlier', 'bg'], ['outlier', 'surface'], ['outlier', 'outlier-bg'],
+  ['danger', 'bg'], ['danger', 'surface'], ['danger', 'danger-bg'],
 ]
 
 // Focus-ring pairs that must meet AA for non-text (3:1).

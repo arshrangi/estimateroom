@@ -37,7 +37,7 @@ function confirm() {
 const triggerClass = computed(() => {
   if (slots.trigger) return 'cursor-pointer rounded-sm'
   return props.compact
-    ? 'font-mono text-meta text-ink-muted hover:text-outlier'
+    ? 'font-mono text-meta text-ink-muted hover:text-danger'
     : 'h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink'
 })
 </script>
@@ -61,7 +61,7 @@ const triggerClass = computed(() => {
         ref="confirmRef"
         type="button"
         class="rounded-sm px-2 py-1 font-mono text-meta font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
-        :class="destructive ? 'bg-outlier-bg text-outlier' : 'bg-accent text-accent-fg'"
+        :class="destructive ? 'bg-danger-bg text-danger' : 'bg-accent text-accent-fg'"
         @click="confirm"
       >
         {{ confirmLabel }}
