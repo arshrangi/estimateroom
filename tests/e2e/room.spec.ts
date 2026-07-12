@@ -206,6 +206,7 @@ test('deck chosen on the join card seeds the room and is remembered', async ({ b
   // The room starts with the chosen deck; there is no waiting-for-deck state.
   await expect(host.getByText('Waiting for the host to pick a deck.')).toHaveCount(0)
   await expect(hand(host).getByRole('button', { name: 'M', exact: true })).toBeVisible()
+  await expect(hand(host).getByRole('button', { name: '?', exact: true })).toBeVisible()
 
   // A second created room stops the returning creator at the Join card, deck remembered.
   await createRoom(host)

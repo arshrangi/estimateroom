@@ -2,6 +2,7 @@
 // ABOUTME: Participants + votes live in durable storage so a refresh restores identity and vote; connected is derived.
 import { Server, type Connection, type WSMessage } from 'partyserver'
 import type { AvatarTint } from '../shared/avatars'
+import { withQuestionCard } from '../shared/decks'
 import { ClientMessageSchema, type ChangeDeckMessage, type JoinMessage, type Participant, type RevealMode, type Role, type RoomState, type ServerMessage } from '../shared/protocol'
 import { publicParticipant } from '../shared/room'
 import type { Env } from './env'
@@ -124,7 +125,7 @@ export class Room extends Server<Env> {
 
   async handleChangeDeck(connection: Connection, msg: ChangeDeckMessage) {
     if (!(await this.isHost(connection))) return
-    await this.ctx.storage.put(DECK_KEY, msg.cards)
+    await this.ctx.storage.put(DECK_KEY, withQuestionCard(msg.cards))
     // Changing the deck clears the round: old card values may not exist in the new deck.
     await this.clearAllVotes()
     await this.ctx.storage.put(REVEALED_KEY, false)
