@@ -112,6 +112,32 @@ test('voting round: hidden cast, simultaneous reveal, spread, then re-vote', asy
   // The roster re-sorts live: Alice's 8 is now the low vote.
   await expect(host.getByRole('listitem').first()).toContainText('Alice')
 
+  // The guest clears their own selection post-reveal by clicking it again; both clients
+  // see the abstain and the strip's vote count drops, and the guest's hand deselects too.
+  // Toggling clear/vote/clear within one JS turn (no round trip between clicks) keeps the
+  // vote and clear broadcasts both in flight together, which is what exposes a stale guard
+  // wrongly re-selecting the card after the clear broadcast lands.
+  await expect(host.getByRole('status').filter({ hasText: '2 votes' })).toBeVisible()
+  await hand(guest).getByRole('button', { name: '13', exact: true }).evaluate((el) => {
+    const button = el as HTMLButtonElement
+    button.click()
+    button.click()
+    button.click()
+  })
+  for (const p of [host, guest]) {
+    await expect(row(p, 'Bob')).toContainText('?')
+    await expect(p.getByRole('status').filter({ hasText: '1 vote' })).toBeVisible()
+  }
+  await expect(hand(guest).getByRole('button', { pressed: true })).toHaveCount(0)
+  await expect(host.getByRole('listitem').first()).toContainText('Alice')
+  await expect(host.getByRole('listitem').nth(1)).toContainText('Bob')
+
+  // Re-picking 13 restores the vote for both clients.
+  await hand(guest).getByRole('button', { name: '13', exact: true }).click()
+  for (const p of [host, guest]) {
+    await expect(row(p, 'Bob')).toContainText('13')
+  }
+
   // Starting the next vote clears the round back to voting-in-progress.
   await host.getByRole('button', { name: 'Start next vote' }).click()
   await expect(host.getByText('Median')).toBeHidden()
