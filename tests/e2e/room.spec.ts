@@ -1,5 +1,5 @@
 // ABOUTME: Multi-client end-to-end coverage of EstimateRoom's critical real-time journeys.
-// ABOUTME: create-and-join, a full voting round (hidden cast, reveal, spread, re-vote), refresh-proof reconnect, and logo leave paths.
+// ABOUTME: create-and-join, a full voting round (hidden cast, reveal, spread, then next round), refresh-proof reconnect, and logo leave paths.
 import { test, expect, type Browser, type Page } from '@playwright/test'
 
 // Contexts created off the shared browser don't inherit config `use`, so set baseURL
@@ -69,7 +69,7 @@ test('create and join: two participants see each other in real time', async ({ b
   await guest.context().close()
 })
 
-test('voting round: hidden cast, simultaneous reveal, spread, then re-vote', async ({ browser }) => {
+test('voting round: hidden cast, simultaneous reveal, spread, then next round', async ({ browser }) => {
   const host = await newClient(browser)
   const guest = await newClient(browser)
 
