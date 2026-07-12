@@ -32,7 +32,7 @@ async function visitRoom(page: Page, url: string): Promise<void> {
 }
 
 async function join(page: Page, name: string): Promise<void> {
-  await page.getByPlaceholder('e.g. Priya').fill(name)
+  await page.getByPlaceholder('e.g. David').fill(name)
   await page.getByRole('button', { name: 'Join', exact: true }).click()
   // Presence round-trips through the party Worker; the row appearing proves the socket is live.
   await expect(row(page, name)).toBeVisible()
