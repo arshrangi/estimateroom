@@ -85,8 +85,8 @@ test('voting round: hidden cast, simultaneous reveal, spread, then re-vote', asy
   // Both cast, each within their own hand so the selector never crosses clients.
   await expect(hand(host)).toBeVisible()
   await expect(hand(guest)).toBeVisible()
-  await hand(host).getByRole('button', { name: '5', exact: true }).click()
-  await hand(guest).getByRole('button', { name: '8', exact: true }).click()
+  await hand(host).getByRole('button', { name: '8', exact: true }).click()
+  await hand(guest).getByRole('button', { name: '5', exact: true }).click()
 
   // Votes are hidden pre-reveal: the guest sees Alice as "voted", not her value.
   await expect(row(guest, 'Alice')).toContainText('voted')
@@ -101,7 +101,9 @@ test('voting round: hidden cast, simultaneous reveal, spread, then re-vote', asy
   await host.getByRole('button', { name: 'What spread means' }).focus()
   await expect(host.getByRole('tooltip')).toBeVisible()
   // The revealed value is now visible in the roster on the other client.
-  await expect(row(guest, 'Alice')).toContainText('5')
+  await expect(row(guest, 'Alice')).toContainText('8')
+  // Revealed rows sort by vote, low first: Bob's 5 outranks Alice's 8 despite join order.
+  await expect(host.getByRole('listitem').first()).toContainText('Bob')
 
   // Starting the next vote clears the round back to voting-in-progress.
   await host.getByRole('button', { name: 'Start next vote' }).click()
