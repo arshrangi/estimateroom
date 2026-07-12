@@ -7,11 +7,11 @@ export interface Deck {
 }
 
 export const DECK_PRESETS: Deck[] = [
-  { id: 'fibonacci', label: 'Fibonacci', cards: ['0', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '?'] },
-  { id: 'fibonacci-modified', label: 'Modified Fibonacci', cards: ['0', '½', '1', '2', '3', '5', '8', '13', '20', '40', '100', '?'] },
-  { id: 'tshirt', label: 'T-shirt', cards: ['S', 'M', 'L', 'XL', '?'] },
-  { id: 'powers-of-2', label: 'Powers of 2', cards: ['1', '2', '4', '8', '16', '32', '64', '?'] },
-  { id: 'one-to-five', label: '1 to 5', cards: ['1', '2', '3', '4', '5', '?'] },
+  { id: 'fibonacci', label: 'Fibonacci', cards: ['?', '0', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89'] },
+  { id: 'fibonacci-modified', label: 'Modified Fibonacci', cards: ['?', '0', '½', '1', '2', '3', '5', '8', '13', '20', '40', '100'] },
+  { id: 'tshirt', label: 'T-shirt', cards: ['?', 'S', 'M', 'L', 'XL'] },
+  { id: 'powers-of-2', label: 'Powers of 2', cards: ['?', '1', '2', '4', '8', '16', '32', '64'] },
+  { id: 'one-to-five', label: '1 to 5', cards: ['?', '1', '2', '3', '4', '5'] },
 ]
 
 export const MAX_DECK_CARDS = 15
@@ -19,10 +19,10 @@ export const MAX_CARD_LEN = 8
 
 export const QUESTION_CARD = '?'
 
-/** Every deck ends with the "?" card so an unsure voter can still cast without skewing the stats. */
+/** Every deck starts with the "?" card so an unsure voter can still cast without skewing the stats. */
 export function withQuestionCard(cards: string[]): string[] {
   const base = cards.filter((c) => c !== QUESTION_CARD).slice(0, MAX_DECK_CARDS - 1)
-  return [...base, QUESTION_CARD]
+  return [QUESTION_CARD, ...base]
 }
 
 export function getDeckPreset(id: string): Deck | undefined {
