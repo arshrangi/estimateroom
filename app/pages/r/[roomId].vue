@@ -64,7 +64,7 @@ onBeforeUnmount(disconnect)
 
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div class="min-w-0 flex-1">
-        <DeckRow v-if="!store.revealed" />
+        <DeckRow />
       </div>
       <HostControls />
     </div>

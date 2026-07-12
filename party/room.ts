@@ -106,6 +106,13 @@ export class Room extends Server<Env> {
     if (!deck || !deck.includes(card)) return // INVALID_VOTE (typed error surfaces in a later story)
     p.vote = card // stored server-side only; never broadcast before reveal
     await this.putRegistry(registry)
+
+    // After reveal, votes are public: broadcast the full state so the change shows live.
+    if ((await this.ctx.storage.get<boolean>(REVEALED_KEY)) ?? false) {
+      await this.broadcastState()
+      return
+    }
+
     this.broadcast(encode({ type: 'voteStatusChanged', participantId: pid, hasVoted: true }))
 
     const mode = (await this.ctx.storage.get<RevealMode>(REVEALMODE_KEY)) ?? 'host'
@@ -120,6 +127,13 @@ export class Room extends Server<Env> {
     if (!p) return
     p.vote = null
     await this.putRegistry(registry)
+
+    // After reveal, votes are public: broadcast the full state so the change shows live.
+    if ((await this.ctx.storage.get<boolean>(REVEALED_KEY)) ?? false) {
+      await this.broadcastState()
+      return
+    }
+
     this.broadcast(encode({ type: 'voteStatusChanged', participantId: pid, hasVoted: false }))
   }
 

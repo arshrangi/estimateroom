@@ -105,6 +105,13 @@ test('voting round: hidden cast, simultaneous reveal, spread, then re-vote', asy
   // Revealed rows sort by vote, low first: Bob's 5 outranks Alice's 8 despite join order.
   await expect(host.getByRole('listitem').first()).toContainText('Bob')
 
+  // Discussion continues: Bob raises his 5 to 13 after reveal and everyone sees it live.
+  await hand(guest).getByRole('button', { name: '13', exact: true }).click()
+  await expect(row(host, 'Bob')).toContainText('13')
+  await expect(host.getByRole('status').filter({ hasText: 'Median 10.5' })).toBeVisible()
+  // The roster re-sorts live: Alice's 8 is now the low vote.
+  await expect(host.getByRole('listitem').first()).toContainText('Alice')
+
   // Starting the next vote clears the round back to voting-in-progress.
   await host.getByRole('button', { name: 'Start next vote' }).click()
   await expect(host.getByText('Median')).toBeHidden()
