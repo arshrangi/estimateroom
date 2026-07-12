@@ -46,9 +46,6 @@ export const SetRevealModeMessageSchema = z.object({
 /** The host reveals all votes now. */
 export const RevealMessageSchema = z.object({ type: z.literal('reveal') })
 
-/** The host clears votes to re-vote the same item. */
-export const RevoteMessageSchema = z.object({ type: z.literal('revote') })
-
 /** The host starts a fresh round for the next item. */
 export const NextMessageSchema = z.object({ type: z.literal('next') })
 
@@ -68,7 +65,6 @@ export const ClientMessageSchema = z.discriminatedUnion('type', [
   ClearVoteMessageSchema,
   SetRevealModeMessageSchema,
   RevealMessageSchema,
-  RevoteMessageSchema,
   NextMessageSchema,
   KickMessageSchema,
   MakeHostMessageSchema,

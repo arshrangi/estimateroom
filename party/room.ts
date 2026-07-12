@@ -53,7 +53,7 @@ export class Room extends Server<Env> {
     else if (msg.type === 'clearVote') await this.handleClearVote(connection)
     else if (msg.type === 'setRevealMode') await this.handleSetRevealMode(connection, msg.mode)
     else if (msg.type === 'reveal') await this.handleReveal(connection)
-    else if (msg.type === 'revote' || msg.type === 'next') await this.handleRoundReset(connection)
+    else if (msg.type === 'next') await this.handleRoundReset(connection)
     else if (msg.type === 'kick') await this.handleKick(connection, msg.participantId)
     else if (msg.type === 'makeHost') await this.handleMakeHost(connection, msg.participantId)
     else if (msg.type === 'leave') await this.handleLeave(connection)
@@ -143,7 +143,7 @@ export class Room extends Server<Env> {
     await this.reveal()
   }
 
-  // Re-vote and Next both reset the round: clear votes and un-reveal. Identical effect (no stored item).
+  // Next resets the round: clear votes and un-reveal (no stored item; re-voting the same item is just another round).
   async handleRoundReset(connection: Connection) {
     if (!(await this.isHost(connection))) return
     await this.clearAllVotes()

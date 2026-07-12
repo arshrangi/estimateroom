@@ -103,9 +103,8 @@ test('voting round: hidden cast, simultaneous reveal, spread, then re-vote', asy
   // The revealed value is now visible in the roster on the other client.
   await expect(row(guest, 'Alice')).toContainText('5')
 
-  // Re-vote clears the round back to voting-in-progress.
-  await host.getByRole('button', { name: 'Vote again' }).click()
-  await host.getByRole('button', { name: 'Clear & re-vote' }).click()
+  // Starting the next vote clears the round back to voting-in-progress.
+  await host.getByRole('button', { name: 'Start next vote' }).click()
   await expect(host.getByText('Median')).toBeHidden()
 
   await host.context().close()

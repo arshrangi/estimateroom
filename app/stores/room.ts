@@ -47,9 +47,6 @@ export const useRoomStore = defineStore('room', () => {
   function reveal() {
     transport.value?.({ type: 'reveal' })
   }
-  function revote() {
-    transport.value?.({ type: 'revote' })
-  }
   function next() {
     transport.value?.({ type: 'next' })
   }
@@ -92,7 +89,6 @@ export const useRoomStore = defineStore('room', () => {
     clearVote,
     setRevealMode,
     reveal,
-    revote,
     next,
     kick,
     makeHost,

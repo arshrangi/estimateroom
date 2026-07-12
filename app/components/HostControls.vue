@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ABOUTME: Host-only round controls. Pre-reveal: reveal-mode toggle + Reveal. Post-reveal: equal-weight Vote again / Next.
+// ABOUTME: Host-only round controls. Pre-reveal: reveal-mode toggle + Reveal. Post-reveal: a single Start-next-vote reset.
 import type { RevealMode } from '~~/shared/protocol'
 
 const store = useRoomStore()
@@ -40,20 +40,14 @@ const modes: { value: RevealMode; label: string }[] = [
       </button>
     </template>
 
-    <!-- Equal-weight peers: same style, same size, neither demoted. Vote again confirms (it clears votes); Next does not. -->
+    <!-- Post-reveal there is only one way forward: reset the round. Votes are already public, so no confirm. -->
     <template v-else>
-      <ConfirmButton
-        label="Vote again"
-        message="Clear everyone's votes and re-vote this item?"
-        confirm-label="Clear & re-vote"
-        @confirm="store.revote()"
-      />
       <button
         type="button"
-        class="h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
+        class="h-[38px] rounded-sm bg-accent px-4 font-semibold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         @click="store.next()"
       >
-        Next
+        Start next vote
       </button>
     </template>
   </div>
