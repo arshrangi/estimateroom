@@ -31,6 +31,10 @@ describe('normalizeCustomDeck', () => {
     expect(normalizeCustomDeck('1 2 2 3 1')).toEqual(['1', '2', '3', '?'])
   })
 
+  it('moves a user-typed ? to the end', () => {
+    expect(normalizeCustomDeck('1 2 ? 3')).toEqual(['1', '2', '3', '?'])
+  })
+
   it('caps the number of cards', () => {
     const many = Array.from({ length: 30 }, (_, i) => String(i)).join(' ')
     expect(normalizeCustomDeck(many).length).toBe(MAX_DECK_CARDS)
@@ -59,6 +63,11 @@ describe('normalizeStoredDeck', () => {
 
   it('rejects decks over the card cap', () => {
     expect(normalizeStoredDeck(Array.from({ length: 16 }, (_, i) => String(i)))).toBeNull()
+  })
+
+  it('drops the last stored card when a full deck needs room for the ?', () => {
+    const full = Array.from({ length: MAX_DECK_CARDS }, (_, i) => String(i))
+    expect(normalizeStoredDeck(full)).toEqual([...full.slice(0, MAX_DECK_CARDS - 1), QUESTION_CARD])
   })
 })
 
