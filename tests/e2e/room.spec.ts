@@ -125,7 +125,7 @@ test('voting round: hidden cast, simultaneous reveal, spread, then next round', 
     button.click()
   })
   for (const p of [host, guest]) {
-    await expect(row(p, 'Bob')).toContainText('?')
+    await expect(row(p, 'Bob')).toContainText('Not voted')
     await expect(p.getByRole('status').filter({ hasText: '1 vote' })).toBeVisible()
   }
   await expect(hand(guest).getByRole('button', { pressed: true })).toHaveCount(0)

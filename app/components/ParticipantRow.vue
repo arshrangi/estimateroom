@@ -19,7 +19,7 @@ const descriptor = computed(() => {
   parts.push(props.participant.role === 'observer' ? 'observer' : 'voter')
   if (props.isYou) parts.push('you')
   if (props.participant.role !== 'observer') {
-    if (props.revealed) parts.push(props.participant.vote === null ? 'abstained' : `voted ${props.participant.vote}`)
+    if (props.revealed) parts.push(props.participant.vote === null ? 'not voted' : `voted ${props.participant.vote}`)
     else parts.push(props.participant.hasVoted ? 'voted' : 'waiting')
   }
   return parts.join(', ')
