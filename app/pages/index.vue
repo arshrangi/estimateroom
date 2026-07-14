@@ -4,6 +4,8 @@
 const creating = ref(false)
 const deckMemory = useDeckMemory()
 
+useHead({ link: [{ rel: 'canonical', href: useRequestURL().origin + '/' }] })
+
 async function createRoom() {
   if (creating.value) return
   creating.value = true

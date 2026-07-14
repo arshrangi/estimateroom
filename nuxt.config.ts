@@ -18,6 +18,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
+      htmlAttrs: { lang: 'en' },
       script: [{ innerHTML: noFlashTheme, tagPosition: 'head' }],
       link: [
         { rel: 'icon', href: '/favicon.ico' },

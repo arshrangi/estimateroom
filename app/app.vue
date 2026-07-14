@@ -2,6 +2,25 @@
 // ABOUTME: App shell: centered column, the top bar, the routed page, and the site footer. Syncs theme state on mount.
 const { init } = useTheme()
 onMounted(init)
+
+// URLs derive from the request so self-hosted instances advertise their own origin.
+const url = useRequestURL()
+const description = 'Ad-free, account-free planning poker for agile teams. Open a room, paste the link, estimate.'
+
+useHead({
+  titleTemplate: (title) =>
+    title ? `${title} · EstimateRoom` : 'EstimateRoom · Planning poker that respects your meeting',
+})
+useSeoMeta({
+  description,
+  ogSiteName: 'EstimateRoom',
+  ogType: 'website',
+  ogTitle: 'EstimateRoom · Planning poker that respects your meeting',
+  ogDescription: description,
+  ogUrl: url.origin + url.pathname,
+  ogImage: `${url.origin}/web-app-manifest-512x512.png`,
+  twitterCard: 'summary',
+})
 </script>
 
 <template>

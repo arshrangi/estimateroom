@@ -6,6 +6,17 @@ import { hasProfile } from '~~/shared/identity'
 const route = useRoute()
 const roomId = computed(() => String(route.params.roomId))
 
+// Rooms are ephemeral and invite-only, so they stay out of search indexes;
+// the OG copy is what an invite link unfurls to in chat.
+const inviteCopy = 'You are invited to estimate. No account needed, just pick a name and vote.'
+useSeoMeta({
+  title: 'Planning room',
+  robots: 'noindex',
+  ogTitle: 'Join my planning poker room',
+  description: inviteCopy,
+  ogDescription: inviteCopy,
+})
+
 const store = useRoomStore()
 const { identity, load } = useIdentity()
 const { status, error, connect, disconnect, reconnect } = useRoomSocket(roomId.value)
