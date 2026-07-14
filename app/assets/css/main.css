@@ -6,13 +6,12 @@
 
 @theme {
   /* Type families */
-  --font-sans: -apple-system, "Segoe UI", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Mono", Menlo, Consolas, monospace;
 
   /* Type scale (size + line-height where meaningful) */
-  --text-label-caps: 10.5px;
-  --text-meta: 12px;
-  --text-body: 13px;
+  --text-label-caps: 11px;
+  --text-meta: 13px;
+  --text-body: 14px;
   --text-body--line-height: 1.5;
   --text-vote: 16px;
   --text-heading: 18px;
@@ -89,7 +88,7 @@
 html {
   background-color: var(--color-bg);
   color: var(--color-ink);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: var(--text-body);
   line-height: 1.5;
 }

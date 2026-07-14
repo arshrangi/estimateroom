@@ -34,7 +34,7 @@ const grade = computed(() => (store.deck ? spreadGrade(votes.value, store.deck) 
         <span
           id="spread-tooltip"
           role="tooltip"
-          class="pointer-events-none invisible absolute bottom-full left-1/2 z-10 mb-1.5 w-60 -translate-x-1/2 rounded-sm border border-line bg-surface px-2.5 py-1.5 text-left font-sans text-meta normal-case text-ink-soft opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
+          class="pointer-events-none invisible absolute bottom-full left-1/2 z-10 mb-1.5 w-60 -translate-x-1/2 rounded-sm border border-line bg-surface px-2.5 py-1.5 text-left text-meta normal-case text-ink-soft opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
         >
           How far apart the lowest and highest votes sit in this deck: neighbouring cards read low, two apart moderate, three or more high.
         </span>
