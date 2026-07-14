@@ -29,7 +29,7 @@ const grade = computed(() => (store.deck ? spreadGrade(votes.value, store.deck) 
           type="button"
           aria-label="What spread means"
           aria-describedby="spread-tooltip"
-          class="flex h-4 w-4 items-center justify-center rounded-full border border-line text-[10px] text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
+          class="flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
         >i</button>
         <span
           id="spread-tooltip"
