@@ -325,3 +325,30 @@ test('not voting: opting out pre-reveal discards the cast vote', async ({ browse
 
   await page.context().close()
 })
+
+test('not voting: the last holdout opting out fires auto-reveal', async ({ browser }) => {
+  const host = await newClient(browser)
+  const guest = await newClient(browser)
+
+  const url = await createRoom(host)
+  await join(host, 'Alice')
+  await visitRoom(guest, url)
+  await join(guest, 'Bob')
+
+  await host.getByRole('button', { name: 'Choose deck' }).click()
+  await host.getByRole('button', { name: /^Fibonacci/ }).click()
+  await host.getByRole('group', { name: 'Reveal mode' }).getByRole('button', { name: 'Auto' }).click()
+
+  await hand(host).getByRole('button', { name: '8', exact: true }).click()
+  // Still hidden: Bob has not cast.
+  await expect(host.getByRole('status').filter({ hasText: 'Median' })).toHaveCount(0)
+
+  // Bob opts out instead of voting. That is the whole room done, so the cards flip themselves.
+  await guest.getByRole('checkbox', { name: 'Not voting' }).click()
+  for (const p of [host, guest]) {
+    await expect(p.getByRole('status').filter({ hasText: 'Median 8' })).toBeVisible()
+  }
+
+  await host.context().close()
+  await guest.context().close()
+})

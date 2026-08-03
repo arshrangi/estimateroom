@@ -84,6 +84,13 @@ export class Room extends Server<Env> {
     if (msg.role === 'observer' && !revealed) p.vote = null
 
     await this.putRegistry(registry)
+
+    // Opting out can be what completes the round; reveal() broadcasts, so return after it.
+    const mode = (await this.ctx.storage.get<RevealMode>(REVEALMODE_KEY)) ?? 'host'
+    if (!revealed && mode === 'auto' && this.allVotersVoted(registry)) {
+      await this.reveal()
+      return
+    }
     await this.broadcastState()
   }
 
