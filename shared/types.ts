@@ -3,6 +3,12 @@
 import { z } from 'zod'
 import { AVATAR_TINTS } from './avatars'
 
+/**
+ * observer = present but not voting. The UI labels this role "Not voting".
+ * Do not rename the value: it is persisted per room in the Durable Object and
+ * validated on the client, so any room live at deploy time would reject every
+ * state message and appear frozen.
+ */
 export const RoleSchema = z.enum(['voter', 'observer'])
 export type Role = z.infer<typeof RoleSchema>
 

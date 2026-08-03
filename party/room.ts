@@ -3,7 +3,7 @@
 import { Server, type Connection, type WSMessage } from 'partyserver'
 import type { AvatarTint } from '../shared/avatars'
 import { withQuestionCard } from '../shared/decks'
-import { ClientMessageSchema, type ChangeDeckMessage, type JoinMessage, type Participant, type RevealMode, type Role, type RoomState, type ServerMessage } from '../shared/protocol'
+import { ClientMessageSchema, type ChangeDeckMessage, type JoinMessage, type Participant, type RevealMode, type Role, type RoomState, type ServerMessage, type SetRoleMessage } from '../shared/protocol'
 import { publicParticipant } from '../shared/room'
 import type { Env } from './env'
 
@@ -56,6 +56,7 @@ export class Room extends Server<Env> {
     else if (msg.type === 'next') await this.handleRoundReset(connection)
     else if (msg.type === 'kick') await this.handleKick(connection, msg.participantId)
     else if (msg.type === 'makeHost') await this.handleMakeHost(connection, msg.participantId)
+    else if (msg.type === 'setRole') await this.handleSetRole(connection, msg)
     else if (msg.type === 'leave') await this.handleLeave(connection)
   }
 
@@ -64,6 +65,32 @@ export class Room extends Server<Env> {
     const registry = await this.getRegistry()
     if (!registry[participantId]) return
     await this.ctx.storage.put(HOST_KEY, participantId)
+    await this.broadcastState()
+  }
+
+  // Anyone may opt themselves out of voting, or back in; the host may also set it for someone else.
+  async handleSetRole(connection: Connection, msg: SetRoleMessage) {
+    const pid = this.pidOf(connection)
+    if (!pid) return
+    if (msg.participantId !== pid && !(await this.isHost(connection))) return
+    const registry = await this.getRegistry()
+    const p = registry[msg.participantId]
+    if (!p || p.role === msg.role) return
+    p.role = msg.role
+
+    // Pre-reveal, a hidden vote from someone who is no longer voting would surface at reveal.
+    // Post-reveal the value is already public, so it stays and keeps counting.
+    const revealed = (await this.ctx.storage.get<boolean>(REVEALED_KEY)) ?? false
+    if (msg.role === 'observer' && !revealed) p.vote = null
+
+    await this.putRegistry(registry)
+
+    // Opting out can be what completes the round; reveal() broadcasts, so return after it.
+    const mode = (await this.ctx.storage.get<RevealMode>(REVEALMODE_KEY)) ?? 'host'
+    if (!revealed && mode === 'auto' && this.allVotersVoted(registry)) {
+      await this.reveal()
+      return
+    }
     await this.broadcastState()
   }
 
@@ -84,7 +111,7 @@ export class Room extends Server<Env> {
       id: msg.participantId,
       name: msg.name,
       avatar: msg.avatar,
-      role: msg.role,
+      role: existing?.role ?? msg.role, // the room owns the role once you are in; join only seeds it
       vote: existing?.vote ?? null, // reconnect restores the prior vote
     }
     await this.putRegistry(registry)

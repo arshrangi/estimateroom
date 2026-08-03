@@ -9,17 +9,19 @@ const { identity } = useIdentity()
 const viewerIsHost = computed(() => !!store.hostId && store.hostId === identity.value.participantId)
 
 // Revealed rows sort low-to-high by deck position, "?" votes after the numbered votes
-// (the card leads the deck but reads as "unsure", not as the lowest estimate), abstains
-// below them, observers at the bottom; ties keep join order. Pre-reveal keeps join order.
+// (the card leads the deck but reads as "unsure", not as the lowest estimate), then rows
+// with no vote, then people not voting; a vote cast before opting out still sorts by its
+// value. Ties keep join order. Pre-reveal keeps join order.
 const sortedParticipants = computed(() => {
   const deck = store.deck
   if (!store.revealed || !deck) return store.participants
   const rank = (p: Participant): number => {
-    if (p.role === 'observer') return deck.length + 2
-    if (p.vote === null) return deck.length + 1
-    if (p.vote === QUESTION_CARD) return deck.length
-    const i = deck.indexOf(p.vote)
-    return i === -1 ? deck.length + 1 : i
+    if (p.vote !== null) {
+      if (p.vote === QUESTION_CARD) return deck.length
+      const i = deck.indexOf(p.vote)
+      return i === -1 ? deck.length + 1 : i
+    }
+    return p.role === 'observer' ? deck.length + 2 : deck.length + 1
   }
   return [...store.participants].sort((a, b) => rank(a) - rank(b))
 })
@@ -37,6 +39,7 @@ const sortedParticipants = computed(() => {
       :revealed="store.revealed"
       @kick="store.kick(p.id)"
       @make-host="store.makeHost(p.id)"
+      @set-role="(role) => store.setRole(p.id, role)"
     />
   </ul>
 </template>

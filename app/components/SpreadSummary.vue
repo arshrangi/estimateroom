@@ -4,9 +4,9 @@ import { computeSpread, spreadGrade } from '~~/shared/spread'
 
 const store = useRoomStore()
 
-const votes = computed(() =>
-  store.participants.filter((p) => p.role !== 'observer' && p.vote !== null).map((p) => p.vote as string),
-)
+// The strip only renders post-reveal (see the room page's v-if), so a non-null vote is the
+// whole test: it includes a vote cast before its owner opted out.
+const votes = computed(() => store.participants.filter((p) => p.vote !== null).map((p) => p.vote as string))
 const spread = computed(() => computeSpread(votes.value))
 const grade = computed(() => (store.deck ? spreadGrade(votes.value, store.deck) : null))
 </script>
