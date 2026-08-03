@@ -89,3 +89,23 @@ describe('ClientMessageSchema (leave)', () => {
     expect(() => ClientMessageSchema.parse({ type: 'depart' })).toThrow()
   })
 })
+
+describe('ClientMessageSchema (setRole)', () => {
+  const validSetRole = { type: 'setRole', participantId: 'p1', role: 'observer' }
+
+  it('parses opting a participant out of voting', () => {
+    expect(ClientMessageSchema.parse(validSetRole)).toEqual(validSetRole)
+  })
+
+  it('parses opting them back in', () => {
+    expect(ClientMessageSchema.parse({ ...validSetRole, role: 'voter' })).toMatchObject({ role: 'voter' })
+  })
+
+  it('rejects an unknown role', () => {
+    expect(() => ClientMessageSchema.parse({ ...validSetRole, role: 'lurker' })).toThrow()
+  })
+
+  it('rejects an empty participantId', () => {
+    expect(() => ClientMessageSchema.parse({ ...validSetRole, participantId: '' })).toThrow()
+  })
+})
