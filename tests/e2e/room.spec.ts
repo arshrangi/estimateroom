@@ -273,7 +273,7 @@ test('not voting: opting out mid-round drops you from the waiting list', async (
   await expect(guest.getByText("You're not voting this round.")).toBeVisible()
   await expect(hand(guest)).toHaveCount(0)
   for (const p of [host, guest]) {
-    await expect(row(p, 'Bob')).toContainText('not voting')
+    await expect(row(p, 'Bob').getByText('not voting', { exact: true })).toBeVisible()
     await expect(p.getByText("Everyone's voted.")).toBeVisible()
   }
 
@@ -341,7 +341,7 @@ test('not voting: the last holdout opting out fires auto-reveal', async ({ brows
 
   await hand(host).getByRole('button', { name: '8', exact: true }).click()
   // Still hidden: Bob has not cast.
-  await expect(host.getByRole('status').filter({ hasText: 'Median' })).toHaveCount(0)
+  await expect(host.getByText('Waiting on 1: Bob.')).toBeVisible()
 
   // Bob opts out instead of voting. That is the whole room done, so the cards flip themselves.
   await guest.getByRole('checkbox', { name: 'Not voting' }).click()
@@ -372,7 +372,7 @@ test('not voting: a vote cast before opting out survives reveal', async ({ brows
   // Bob steps away once the numbers are on the table. His 5 stays on the board and keeps counting.
   await guest.getByRole('checkbox', { name: 'Not voting' }).click()
   for (const p of [host, guest]) {
-    await expect(row(p, 'Bob')).toContainText('not voting')
+    await expect(row(p, 'Bob').getByText('not voting', { exact: true })).toBeVisible()
     await expect(row(p, 'Bob')).toContainText('5')
     await expect(p.getByRole('status').filter({ hasText: '2 votes' })).toBeVisible()
     await expect(p.getByRole('status').filter({ hasText: 'Median 6.5' })).toBeVisible()
@@ -404,7 +404,7 @@ test('not voting: the host can mark someone not voting and back', async ({ brows
   // and not the remembered join preference.
   await expect(guest.getByText("You're not voting this round.")).toBeVisible()
   await expect(guest.getByRole('checkbox', { name: 'Not voting' })).toBeChecked()
-  await expect(row(host, 'Bob')).toContainText('not voting')
+  await expect(row(host, 'Bob').getByText('not voting', { exact: true })).toBeVisible()
 
   // And the host can put him back in.
   await row(host, 'Bob').getByRole('button', { name: 'Mark voting', exact: true }).click()
