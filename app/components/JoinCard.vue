@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// ABOUTME: The join surface: capture a name/avatar/observer choice, or one-tap confirm a remembered profile.
+// ABOUTME: The join surface: capture a name/avatar/not-voting choice, or one-tap confirm a remembered profile.
 // ABOUTME: The room's creator also picks the deck here (remembered per browser). Emits `join` once entered.
 import { AVATAR_TINTS, type AvatarTint } from '~~/shared/avatars'
 import { DECK_PRESETS } from '~~/shared/decks'
@@ -84,7 +84,7 @@ const tintClass: Record<AvatarTint, string> = {
         <div class="mt-4 flex items-center gap-2">
           <UserAvatar :name="identity.name" :tint="identity.avatar" />
           <span class="text-body font-semibold text-ink">{{ identity.name }}</span>
-          <span v-if="identity.observer" class="font-mono text-meta text-ink-muted">observer</span>
+          <span v-if="identity.observer" class="font-mono text-meta text-ink-muted">not voting</span>
         </div>
         <div v-if="showDeck" class="mt-4">
           <span class="font-mono text-meta text-ink-soft">Deck</span>
@@ -144,7 +144,7 @@ const tintClass: Record<AvatarTint, string> = {
 
         <label class="mt-4 flex items-center gap-2">
           <input v-model="observer" type="checkbox" class="size-4 accent-[var(--color-accent-ink)]">
-          <span class="text-body text-ink-soft">Join as observer (watch, don't vote)</span>
+          <span class="text-body text-ink-soft">Join without voting</span>
         </label>
 
         <div v-if="showDeck" class="mt-4">

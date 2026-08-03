@@ -249,3 +249,34 @@ test('deck chosen on the join card seeds the room and is remembered', async ({ b
 
   await host.context().close()
 })
+
+test('not voting: opting out mid-round drops you from the waiting list', async ({ browser }) => {
+  const host = await newClient(browser)
+  const guest = await newClient(browser)
+
+  const url = await createRoom(host)
+  await join(host, 'Alice')
+  await visitRoom(guest, url)
+  // The same choice is offered up front on the join card.
+  await expect(guest.getByRole('checkbox', { name: 'Join without voting' })).toBeVisible()
+  await join(guest, 'Bob')
+
+  await host.getByRole('button', { name: 'Choose deck' }).click()
+  await host.getByRole('button', { name: /^Fibonacci/ }).click()
+  await hand(host).getByRole('button', { name: '8', exact: true }).click()
+
+  // Bob is holding the round up.
+  await expect(host.getByText('Waiting on 1: Bob.')).toBeVisible()
+
+  // Bob opts out: his hand goes away and the round is no longer waiting on him.
+  await guest.getByRole('checkbox', { name: 'Not voting' }).check()
+  await expect(guest.getByText("You're not voting this round.")).toBeVisible()
+  await expect(hand(guest)).toHaveCount(0)
+  for (const p of [host, guest]) {
+    await expect(row(p, 'Bob')).toContainText('not voting')
+    await expect(p.getByText("Everyone's voted.")).toBeVisible()
+  }
+
+  await host.context().close()
+  await guest.context().close()
+})

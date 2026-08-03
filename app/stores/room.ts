@@ -1,7 +1,7 @@
 // ABOUTME: Authoritative-replica room store. Applies server messages and dispatches client messages.
 // ABOUTME: It never originates truth; the socket transport is registered by useRoomSocket on connect.
 import { defineStore } from 'pinia'
-import type { ClientMessage, RevealMode, RoomState } from '~~/shared/protocol'
+import type { ClientMessage, RevealMode, Role, RoomState } from '~~/shared/protocol'
 
 export const useRoomStore = defineStore('room', () => {
   const roomState = ref<RoomState | null>(null)
@@ -56,6 +56,9 @@ export const useRoomStore = defineStore('room', () => {
   function makeHost(participantId: string) {
     transport.value?.({ type: 'makeHost', participantId })
   }
+  function setRole(participantId: string, role: Role) {
+    transport.value?.({ type: 'setRole', participantId, role })
+  }
   function leave() {
     transport.value?.({ type: 'leave' })
   }
@@ -92,6 +95,7 @@ export const useRoomStore = defineStore('room', () => {
     next,
     kick,
     makeHost,
+    setRole,
     leave,
     reset,
   }

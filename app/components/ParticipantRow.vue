@@ -16,7 +16,7 @@ defineEmits<{ kick: []; makeHost: [] }>()
 const descriptor = computed(() => {
   const parts: string[] = []
   if (props.isHost) parts.push('host')
-  parts.push(props.participant.role === 'observer' ? 'observer' : 'voter')
+  parts.push(props.participant.role === 'observer' ? 'not voting' : 'voter')
   if (props.isYou) parts.push('you')
   if (props.participant.role !== 'observer') {
     if (props.revealed) parts.push(props.participant.vote === null ? 'not voted' : `voted ${props.participant.vote}`)
@@ -40,7 +40,7 @@ const descriptor = computed(() => {
         class="shrink-0 rounded-sm bg-accent-bg px-1.5 py-0.5 font-mono text-label-caps font-bold uppercase tracking-wider text-accent-ink"
       >Host</span>
       <span v-if="isYou" class="shrink-0 text-meta text-accent-ink">· you</span>
-      <span v-if="participant.role === 'observer'" class="shrink-0 font-mono text-meta text-ink-muted">observer</span>
+      <span v-if="participant.role === 'observer'" class="shrink-0 font-mono text-meta text-ink-muted">not voting</span>
     </div>
 
     <div class="flex shrink-0 items-center gap-3">
