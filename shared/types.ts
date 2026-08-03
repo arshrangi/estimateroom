@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { AVATAR_TINTS } from './avatars'
 
+/** observer = present but not voting. The UI labels this role "Not voting". */
 export const RoleSchema = z.enum(['voter', 'observer'])
 export type Role = z.infer<typeof RoleSchema>
 

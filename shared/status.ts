@@ -1,5 +1,5 @@
 // ABOUTME: Derives the pre-reveal voting status ("who are we waiting on") from the participant list.
-// ABOUTME: Observers never count toward voting; the facilitator reads this to call out pending voters.
+// ABOUTME: People who are not voting never count toward voting; the facilitator reads this to call out pending voters.
 import type { Participant } from './types'
 
 export function waitingVoters(participants: Participant[]): Participant[] {
