@@ -39,7 +39,7 @@ function contrast(a, b) {
 // [foreground, background] pairs that must meet AA for text (4.5:1).
 const TEXT_PAIRS = [
   ['ink', 'bg'], ['ink', 'surface'], ['ink', 'surface-2'], ['ink', 'row-you'],
-  ['ink-soft', 'bg'], ['ink-soft', 'surface'],
+  ['ink-soft', 'bg'], ['ink-soft', 'surface'], ['ink-soft', 'surface-2'],
   ['ink-muted', 'bg'], ['ink-muted', 'surface'],
   ['accent-fg', 'accent'],
   ['accent-ink', 'bg'], ['accent-ink', 'surface'], ['accent-ink', 'accent-bg'],

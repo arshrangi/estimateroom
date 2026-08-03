@@ -13,6 +13,10 @@ const props = defineProps<{
 
 defineEmits<{ kick: []; makeHost: []; setRole: [Role] }>()
 
+// Host actions read as small chips; the tint carries the consequence, so neutral for the
+// reversible toggle and accent for a promotion. Removal lives in ConfirmButton's danger tint.
+const actionChip = 'inline-flex h-6 shrink-0 items-center rounded-sm border px-2 font-mono text-meta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink'
+
 const descriptor = computed(() => {
   const parts: string[] = []
   if (props.isHost) parts.push('host')
@@ -35,7 +39,8 @@ const descriptor = computed(() => {
     :class="isYou ? 'bg-row-you' : ''"
     :aria-label="`${participant.name} (${descriptor})`"
   >
-    <div class="flex min-w-0 items-center gap-2">
+    <!-- Below sm the name takes a whole line so the host's action chips cannot starve it. -->
+    <div class="flex min-w-0 basis-full items-center gap-2 sm:basis-auto">
       <UserAvatar :name="participant.name" :tint="participant.avatar" />
       <span class="min-w-0 truncate text-body font-semibold text-ink">{{ participant.name }}</span>
       <span
@@ -46,11 +51,11 @@ const descriptor = computed(() => {
       <span v-if="participant.role === 'observer'" class="shrink-0 font-mono text-meta text-ink-muted">not voting</span>
     </div>
 
-    <div class="flex shrink-0 items-center justify-end gap-3">
+    <div class="flex basis-full flex-wrap items-center justify-end gap-x-3 gap-y-1 sm:basis-auto">
       <button
         v-if="canManage"
         type="button"
-        class="font-mono text-meta text-ink-muted hover:text-accent-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
+        :class="[actionChip, 'border-line bg-surface-2 text-ink-soft hover:border-ink-muted']"
         @click="$emit('setRole', participant.role === 'observer' ? 'voter' : 'observer')"
       >
         {{ participant.role === 'observer' ? 'Mark voting' : 'Mark not voting' }}
@@ -58,7 +63,7 @@ const descriptor = computed(() => {
       <button
         v-if="canManage && !isHost"
         type="button"
-        class="font-mono text-meta text-ink-muted hover:text-accent-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
+        :class="[actionChip, 'border-accent-border bg-accent-bg text-accent-ink hover:border-accent']"
         @click="$emit('makeHost')"
       >
         Make host

@@ -37,7 +37,7 @@ function confirm() {
 const triggerClass = computed(() => {
   if (slots.trigger) return 'cursor-pointer rounded-sm'
   return props.compact
-    ? 'font-mono text-meta text-ink-muted hover:text-danger'
+    ? 'inline-flex h-6 items-center rounded-sm border border-danger-border bg-danger-bg px-2 font-mono text-meta text-danger hover:border-danger'
     : 'h-[38px] rounded-sm border border-line bg-surface px-4 font-semibold text-ink-soft hover:text-ink'
 })
 </script>
