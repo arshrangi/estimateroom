@@ -104,7 +104,7 @@ export class Room extends Server<Env> {
       id: msg.participantId,
       name: msg.name,
       avatar: msg.avatar,
-      role: msg.role,
+      role: existing?.role ?? msg.role, // the room owns the role once you are in; join only seeds it
       vote: existing?.vote ?? null, // reconnect restores the prior vote
     }
     await this.putRegistry(registry)

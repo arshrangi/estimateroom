@@ -281,6 +281,26 @@ test('not voting: opting out mid-round drops you from the waiting list', async (
   await guest.context().close()
 })
 
+test('not voting: the choice survives a refresh', async ({ browser }) => {
+  const page = await newClient(browser)
+
+  await createRoom(page)
+  await join(page, 'Alice')
+
+  await page.getByRole('checkbox', { name: 'Not voting' }).click()
+  await expect(row(page, 'Alice')).toContainText('not voting')
+
+  await page.reload()
+  await waitForHydration(page)
+
+  // The join message re-announces the remembered (voting) preference on every reconnect;
+  // the room's own record has to win.
+  await expect(row(page, 'Alice')).toContainText('not voting')
+  await expect(page.getByText("You're not voting this round.")).toBeVisible()
+
+  await page.context().close()
+})
+
 test('not voting: opting out pre-reveal discards the cast vote', async ({ browser }) => {
   const page = await newClient(browser)
 
