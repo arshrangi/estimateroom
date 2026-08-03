@@ -46,7 +46,7 @@ const descriptor = computed(() => {
       <span v-if="participant.role === 'observer'" class="shrink-0 font-mono text-meta text-ink-muted">not voting</span>
     </div>
 
-    <div class="flex shrink-0 items-center gap-3">
+    <div class="flex flex-wrap items-center justify-end gap-3">
       <button
         v-if="canManage"
         type="button"
