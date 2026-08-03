@@ -18,9 +18,12 @@ const descriptor = computed(() => {
   if (props.isHost) parts.push('host')
   parts.push(props.participant.role === 'observer' ? 'not voting' : 'voter')
   if (props.isYou) parts.push('you')
-  if (props.participant.role !== 'observer') {
-    if (props.revealed) parts.push(props.participant.vote === null ? 'not voted' : `voted ${props.participant.vote}`)
-    else parts.push(props.participant.hasVoted ? 'voted' : 'waiting')
+  if (props.revealed) {
+    // A vote cast before opting out stays public, so report it whatever the role now is.
+    if (props.participant.vote !== null) parts.push(`voted ${props.participant.vote}`)
+    else if (props.participant.role !== 'observer') parts.push('not voted')
+  } else if (props.participant.role !== 'observer') {
+    parts.push(props.participant.hasVoted ? 'voted' : 'waiting')
   }
   return parts.join(', ')
 })
@@ -62,7 +65,10 @@ const descriptor = computed(() => {
         @confirm="$emit('kick')"
       />
       <div aria-hidden="true" class="text-right font-mono text-meta">
-        <VoteValue v-if="revealed && participant.role !== 'observer'" :value="participant.vote" />
+        <template v-if="revealed">
+          <span v-if="participant.vote === null && participant.role === 'observer'" class="text-ink-muted">—</span>
+          <VoteValue v-else :value="participant.vote" />
+        </template>
         <template v-else>
           <span v-if="participant.role === 'observer'" class="text-ink-muted">—</span>
           <span v-else-if="participant.hasVoted" class="inline-flex items-center gap-1 text-ok">

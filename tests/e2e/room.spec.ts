@@ -352,3 +352,34 @@ test('not voting: the last holdout opting out fires auto-reveal', async ({ brows
   await host.context().close()
   await guest.context().close()
 })
+
+test('not voting: a vote cast before opting out survives reveal', async ({ browser }) => {
+  const host = await newClient(browser)
+  const guest = await newClient(browser)
+
+  const url = await createRoom(host)
+  await join(host, 'Alice')
+  await visitRoom(guest, url)
+  await join(guest, 'Bob')
+
+  await host.getByRole('button', { name: 'Choose deck' }).click()
+  await host.getByRole('button', { name: /^Fibonacci/ }).click()
+  await hand(host).getByRole('button', { name: '8', exact: true }).click()
+  await hand(guest).getByRole('button', { name: '5', exact: true }).click()
+  await host.getByRole('button', { name: 'Reveal', exact: true }).click()
+  await expect(host.getByRole('status').filter({ hasText: '2 votes' })).toBeVisible()
+
+  // Bob steps away once the numbers are on the table. His 5 stays on the board and keeps counting.
+  await guest.getByRole('checkbox', { name: 'Not voting' }).click()
+  for (const p of [host, guest]) {
+    await expect(row(p, 'Bob')).toContainText('not voting')
+    await expect(row(p, 'Bob')).toContainText('5')
+    await expect(p.getByRole('status').filter({ hasText: '2 votes' })).toBeVisible()
+    await expect(p.getByRole('status').filter({ hasText: 'Median 6.5' })).toBeVisible()
+  }
+  // The retained 5 sorts by value, not to the bottom.
+  await expect(host.getByRole('listitem').first()).toContainText('Bob')
+
+  await host.context().close()
+  await guest.context().close()
+})
