@@ -9,8 +9,12 @@ const { identity } = useIdentity()
 const me = computed(() => store.participants.find((p) => p.id === identity.value.participantId) ?? null)
 const notVoting = computed(() => me.value?.role === 'observer')
 
-function setVoting(voting: boolean) {
+function setVoting(event: Event, voting: boolean) {
   store.setRole(identity.value.participantId, voting ? 'voter' : 'observer')
+  // The dispatch may no-op or the broadcast may be delayed; reassert server truth on the
+  // element rather than trusting the browser's optimistic flip, which Vue won't correct on
+  // its own when the bound value doesn't change between renders.
+  ;(event.target as HTMLInputElement).checked = notVoting.value
 }
 
 function pick(card: string) {
@@ -26,7 +30,7 @@ function pick(card: string) {
         type="checkbox"
         class="size-4 accent-[var(--color-accent-ink)]"
         :checked="notVoting"
-        @change="setVoting(notVoting)"
+        @change="setVoting($event, notVoting)"
       >
       <span class="text-body text-ink-soft">Not voting</span>
     </label>

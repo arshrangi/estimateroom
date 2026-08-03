@@ -269,7 +269,7 @@ test('not voting: opting out mid-round drops you from the waiting list', async (
   await expect(host.getByText('Waiting on 1: Bob.')).toBeVisible()
 
   // Bob opts out: his hand goes away and the round is no longer waiting on him.
-  await guest.getByRole('checkbox', { name: 'Not voting' }).check()
+  await guest.getByRole('checkbox', { name: 'Not voting' }).click()
   await expect(guest.getByText("You're not voting this round.")).toBeVisible()
   await expect(hand(guest)).toHaveCount(0)
   for (const p of [host, guest]) {
