@@ -39,6 +39,7 @@ const sortedParticipants = computed(() => {
       :revealed="store.revealed"
       @kick="store.kick(p.id)"
       @make-host="store.makeHost(p.id)"
+      @set-role="(role) => store.setRole(p.id, role)"
     />
   </ul>
 </template>

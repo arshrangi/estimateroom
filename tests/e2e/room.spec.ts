@@ -383,3 +383,33 @@ test('not voting: a vote cast before opting out survives reveal', async ({ brows
   await host.context().close()
   await guest.context().close()
 })
+
+test('not voting: the host can mark someone not voting and back', async ({ browser }) => {
+  const host = await newClient(browser)
+  const guest = await newClient(browser)
+
+  const url = await createRoom(host)
+  await join(host, 'Alice')
+  await visitRoom(guest, url)
+  await join(guest, 'Bob')
+
+  await host.getByRole('button', { name: 'Choose deck' }).click()
+  await host.getByRole('button', { name: /^Fibonacci/ }).click()
+  await expect(hand(guest)).toBeVisible()
+
+  // Bob walked away without flipping it himself.
+  await row(host, 'Bob').getByRole('button', { name: 'Mark not voting' }).click()
+
+  // The change reaches Bob's own client, which proves the hand reads the server role
+  // and not the remembered join preference.
+  await expect(guest.getByText("You're not voting this round.")).toBeVisible()
+  await expect(guest.getByRole('checkbox', { name: 'Not voting' })).toBeChecked()
+  await expect(row(host, 'Bob')).toContainText('not voting')
+
+  // And the host can put him back in.
+  await row(host, 'Bob').getByRole('button', { name: 'Mark voting', exact: true }).click()
+  await expect(hand(guest)).toBeVisible()
+
+  await host.context().close()
+  await guest.context().close()
+})

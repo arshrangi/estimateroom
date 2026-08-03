@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ABOUTME: One participant row: identity on the left, voted/waiting status (or the revealed value) on the right.
 // ABOUTME: The row's accessible label carries name, role, and status/value; the visual cell mirrors it.
-import type { Participant } from '~~/shared/protocol'
+import type { Participant, Role } from '~~/shared/protocol'
 
 const props = defineProps<{
   participant: Participant
@@ -11,7 +11,7 @@ const props = defineProps<{
   revealed: boolean
 }>()
 
-defineEmits<{ kick: []; makeHost: [] }>()
+defineEmits<{ kick: []; makeHost: []; setRole: [Role] }>()
 
 const descriptor = computed(() => {
   const parts: string[] = []
@@ -47,6 +47,14 @@ const descriptor = computed(() => {
     </div>
 
     <div class="flex shrink-0 items-center gap-3">
+      <button
+        v-if="canManage"
+        type="button"
+        class="font-mono text-meta text-ink-muted hover:text-accent-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-ink"
+        @click="$emit('setRole', participant.role === 'observer' ? 'voter' : 'observer')"
+      >
+        {{ participant.role === 'observer' ? 'Mark voting' : 'Mark not voting' }}
+      </button>
       <button
         v-if="canManage && !isHost"
         type="button"
