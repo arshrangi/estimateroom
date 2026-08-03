@@ -31,7 +31,7 @@ const descriptor = computed(() => {
 
 <template>
   <li
-    class="flex items-center justify-between px-4 py-2 not-first:border-t not-first:border-line-soft"
+    class="flex flex-wrap items-center justify-between px-4 py-2 not-first:border-t not-first:border-line-soft"
     :class="isYou ? 'bg-row-you' : ''"
     :aria-label="`${participant.name} (${descriptor})`"
   >
@@ -46,7 +46,7 @@ const descriptor = computed(() => {
       <span v-if="participant.role === 'observer'" class="shrink-0 font-mono text-meta text-ink-muted">not voting</span>
     </div>
 
-    <div class="flex flex-wrap items-center justify-end gap-3">
+    <div class="flex shrink-0 items-center justify-end gap-3">
       <button
         v-if="canManage"
         type="button"
