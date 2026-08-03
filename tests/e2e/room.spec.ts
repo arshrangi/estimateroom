@@ -280,3 +280,28 @@ test('not voting: opting out mid-round drops you from the waiting list', async (
   await host.context().close()
   await guest.context().close()
 })
+
+test('not voting: opting out pre-reveal discards the cast vote', async ({ browser }) => {
+  const page = await newClient(browser)
+
+  await createRoom(page)
+  await join(page, 'Alice')
+  await page.getByRole('button', { name: 'Choose deck' }).click()
+  await page.getByRole('button', { name: /^Fibonacci/ }).click()
+
+  const five = hand(page).getByRole('button', { name: '5', exact: true })
+  await five.click()
+  await expect(five).toHaveAttribute('aria-pressed', 'true')
+
+  const toggle = page.getByRole('checkbox', { name: 'Not voting' })
+  await toggle.click()
+  await expect(page.getByText("You're not voting this round.")).toBeVisible()
+
+  // Back to voting: the discarded vote must not come back with the hand.
+  await toggle.click()
+  await expect(hand(page)).toBeVisible()
+  await expect(hand(page).getByRole('button', { pressed: true })).toHaveCount(0)
+  await expect(row(page, 'Alice')).toContainText('waiting')
+
+  await page.context().close()
+})

@@ -78,7 +78,13 @@ export function useRoomSocket(roomId: string) {
         // public and authoritative, so sync unconditionally (including back to null on clear).
         // Pre-reveal, broadcasts mask votes to null, so only restore a real reconnect snapshot.
         const me = msg.state.participants.find((p) => p.id === identity.value.participantId)
-        if (me && (msg.state.revealed || me.vote !== null)) store.setMyVote(me.vote)
+        if (me) {
+          if (msg.state.revealed) store.setMyVote(me.vote)
+          // Pre-reveal the server guarantees a non-voter holds no vote, which is the one case
+          // where a masked null can safely be treated as a real null.
+          else if (me.role === 'observer') store.setMyVote(null)
+          else if (me.vote !== null) store.setMyVote(me.vote)
+        }
       } else if (msg.type === 'voteStatusChanged') {
         store.applyVoteStatus(msg.participantId, msg.hasVoted)
       } else if (msg.type === 'error') {
